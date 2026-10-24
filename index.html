@@ -89,6 +89,7 @@
           <div class="canvas-wrap" id="canvasWrap">
             <canvas id="stageCanvas" tabindex="0" aria-label="Прев’ю свічки з вашим дизайном. Клацніть або торкніться елемента, щоб вибрати його, і перетягніть. Стрілки рухають вибраний елемент, Delete видаляє." aria-describedby="selLive"></canvas>
             <div class="tint-badge" id="tintBadge" hidden>Відтінок орієнтовний</div>
+            <button type="button" class="spin-toggle" id="autoSpinBtn" aria-pressed="true" title="Автоматичне обертання свічки"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg>Обертання</button>
             <div class="busy" id="stageBusy" hidden><span class="spinner" aria-hidden="true"></span><span>Обробляємо зображення…</span></div>
           </div>
           <div class="spin-row" id="spinRow">
@@ -243,7 +244,8 @@
       <div class="coll-filter" role="group" aria-label="Тема прикладів" id="worksFilter">
         <button type="button" data-cat="all" aria-pressed="true">Усі</button>
         <button type="button" data-cat="gift" aria-pressed="false">Подарунки</button>
-        <button type="button" data-cat="love" aria-pressed="false">Кохання й весілля</button>
+        <button type="button" data-cat="love" aria-pressed="false">Кохання</button>
+        <button type="button" data-cat="wedding" aria-pressed="false">Весілля</button>
         <button type="button" data-cat="biz" aria-pressed="false">Для бізнесу</button>
       </div>
       <div class="colls" id="works"></div>

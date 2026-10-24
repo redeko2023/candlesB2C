@@ -1346,10 +1346,10 @@ stageCanvas.addEventListener('keydown', (e) => {
 let keyCommit = null;
 const normRot = (a) => { a = ((a + 180) % 360 + 360) % 360 - 180; return Math.round(a); };
 const selectedEl = () => state.els.find((e) => e.id === state.sel) || null;
-function setSpin(deg){
-  state.spin = normRot(deg);
+function setSpin(deg, smooth){
+  state.spin = smooth ? ((deg + 180) % 360 + 360) % 360 - 180 : normRot(deg);
   const r = $('#spin'); if (r) r.value = state.spin;
-  const o = $('#o-spin'); if (o) o.textContent = state.spin === 0 ? 'спереду' : Math.abs(state.spin) === 180 ? 'ззаду' : `${state.spin > 0 ? '+' : ''}${state.spin}°`;
+  const d = Math.round(state.spin), o = $('#o-spin'); if (o) o.textContent = d === 0 ? 'спереду' : Math.abs(d) === 180 ? 'ззаду' : `${d > 0 ? '+' : ''}${d}°`;
   requestRender();
 }
 function faceEl(el){ const Z = ZONE(); if (!Z.wrap || !el) return; setSpin((el.x - Z.widthMm / 2) / (CONFIG.vessel.diameterMm / 2) / DEG); }
@@ -1514,7 +1514,33 @@ $('#btnZone').addEventListener('click', (e) => { state.zone = !state.zone; e.cur
 $('#btnLit').addEventListener('click', (e) => { state.lit = !state.lit; e.currentTarget.setAttribute('aria-pressed', state.lit); requestRender(); });
 $$('[data-view]').forEach((b) => b.addEventListener('click', () => { state.view = b.dataset.view; $$('[data-view]').forEach((x) => x.setAttribute('aria-pressed', x === b)); $('#spinRow').hidden = state.view !== 'mock'; requestRender(); }));
 $('#spin').addEventListener('input', (e) => setSpin(parseInt(e.target.value, 10)));
-$$('[data-spin]').forEach((b) => b.addEventListener('click', () => setSpin(parseInt(b.dataset.spin, 10))));
+$$('[data-spin]').forEach((b) => b.addEventListener('click', () => { spinTouched(); setSpin(parseInt(b.dataset.spin, 10)); }));
+
+/* ===================== Автоматичне обертання прев’ю =====================
+   Свічка повільно обертається, коли покупець нічого не редагує: нічого не вибрано, немає перетягування,
+   прев’ю на екрані. Будь-яка дія на прев’ю ставить обертання на паузу, через resumeAfterMs воно продовжується.
+   Кнопка «Обертання» вимикає його зовсім; за системного налаштування «зменшити рух» обертання вимкнене одразу. */
+const reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+let spinOff = reduceMotion || !CONFIG.preview.autoSpin, lastSpinTouch = 0, stageOnScreen = true, spinT = 0, spinPaint = 0;
+function spinTouched(){ lastSpinTouch = performance.now(); }
+function syncSpinBtn(){ const b = $('#autoSpinBtn'); b.setAttribute('aria-pressed', String(!spinOff)); b.title = spinOff ? 'Увімкнути автоматичне обертання' : 'Зупинити автоматичне обертання'; }
+$('#autoSpinBtn').addEventListener('click', () => { spinOff = !spinOff; lastSpinTouch = 0; syncSpinBtn(); });
+syncSpinBtn();
+['pointerdown', 'wheel', 'keydown'].forEach((t) => stageCanvas.addEventListener(t, spinTouched, { passive: true }));
+stageCanvas.addEventListener('pointermove', (e) => { if (e.buttons) spinTouched(); }, { passive: true });
+$('#spin').addEventListener('pointerdown', spinTouched); $('#spin').addEventListener('input', spinTouched);
+if ('IntersectionObserver' in window) new IntersectionObserver((en) => { stageOnScreen = en[0].isIntersecting; }, { threshold: 0.2 }).observe($('#canvasWrap'));
+function autoSpinTick(t){
+  requestAnimationFrame(autoSpinTick);
+  const on = !spinOff && state.view === 'mock' && !state.sel && !drag && !pinch && stageOnScreen && !document.hidden
+    && ZONE().wrap && performance.now() - lastSpinTouch > CONFIG.preview.resumeAfterMs;
+  if (!on){ spinT = 0; return; }
+  if (!spinT){ spinT = t; return; }
+  if (t - spinPaint < 33) return;                 // ~30 кадрів/с — плавно й не навантажує телефон
+  const dt = Math.min(100, t - spinT); spinT = t; spinPaint = t;
+  setSpin(state.spin + CONFIG.preview.degPerSec * dt / 1000, true);
+}
+requestAnimationFrame(autoSpinTick);
 function renderBg(){
   $('#bgOn').checked = !!state.bg; const box = $('#bgChips'); box.hidden = !state.bg;
   if (state.bg) box.innerHTML = colorChips(state.bg, 'bg');
@@ -1544,7 +1570,7 @@ $$('[data-step]').forEach((b) => b.addEventListener('click', () => { goStep(b.da
 
 const money = (v) => `${Number(v).toLocaleString('uk-UA', { maximumFractionDigits: 0 })} ${CONFIG.pricing.currency}`;
 function tierFor(q){ const T = CONFIG.pricing.tiers; let t = T[0]; for (const x of T) if (q >= x.min) t = x; return t; }
-function tierRange(i){ const T = CONFIG.pricing.tiers, a = T[i].min, b = T[i + 1] ? T[i + 1].min - 1 : null; return b === null ? `від ${a} шт` : a === b ? `${a} шт` : `${a}–${b} шт`; }
+function tierRange(i){ const T = CONFIG.pricing.tiers, a = T[i].min, b = T[i + 1] ? T[i + 1].min - 1 : CONFIG.pricing.quoteFromQty ? CONFIG.pricing.quoteFromQty - 1 : null; return b === null ? `від ${a} шт` : a === b ? `${a} шт` : `${a}–${b} шт`; }
 /* Розрахунок: ціна за шт з урахуванням тиражу й доплати за аромат. Індивідуальний колір не оцінюється. */
 function quote(q = state.qty){
   const P = CONFIG.pricing;
@@ -1569,7 +1595,7 @@ function renderPrice(){
   if (!Q){ box.hidden = true; return; }
   box.hidden = false;
   const cur = Q.quoteOnly ? -1 : P.tiers.indexOf(Q.tier);
-  let html = `<div class="tiers" role="group" aria-label="Ціна залежно від кількості">${P.tiers.map((t, i) => `<button type="button" class="tier" data-tier-qty="${t.min}" aria-pressed="${i === cur}"><span>${tierRange(i)}</span><b>${money(t.price)}</b><small>за шт</small></button>`).join('')}</div>`;
+  let html = `<div class="tiers" role="group" aria-label="Ціна залежно від кількості">${P.tiers.map((t, i) => `<button type="button" class="tier" data-tier-qty="${t.min}" aria-pressed="${i === cur}"><span>${tierRange(i)}</span><b>${money(t.price)}</b><small>за шт</small></button>`).join('')}${P.quoteFromQty ? `<button type="button" class="tier" data-tier-qty="${P.quoteFromQty}" aria-pressed="${!!Q.quoteOnly}"><span>від ${P.quoteFromQty} шт</span><b style="font-size:15px">Індивідуально</b><small>розрахунок</small></button>` : ''}</div>`;
   if (Q.quoteOnly) html += `<div class="price-total"><div><span class="hint">Від ${P.quoteFromQty} шт</span><b>Індивідуальний розрахунок</b></div></div>`;
   else {
     html += `<div class="price-total"><div><span class="hint">Ціна за шт</span><b>${money(Q.unit)}</b></div><div><span class="hint">Разом за ${Q.qty} шт</span><b class="sum">${money(Q.total)}</b></div></div>`;
@@ -1817,14 +1843,14 @@ const WORKS = [
   { id: 'bestyear', cat: 'gift', title: 'Твій найкращий рік', glass: 'clear', note: 'Привітання з днем народження в квітковій рамці', tpl: 'bestyear', alt: 'Свічка з написом «Твій найкращий рік. З днем народження» в квітковій рамці поруч із подарунком' },
   { id: 'kvitny', cat: 'gift', title: 'Квітни', glass: 'clear', note: 'Півонії по всьому колу й золотий напис', tpl: 'kvitny', alt: 'Свічка з півоніями по всьому колу й написом «Квітни»' },
   { id: 'gift', cat: 'gift', photo: 'gift', title: 'Ти — особлива', glass: 'clear', note: 'Кілька теплих слів і сердечко від руки', tpl: 'special', alt: 'Свічка з написом «Ти — особлива» і сердечком поруч із подарунковою коробкою та стрічкою' },
-  { id: 'anna', cat: 'love', title: 'Анна & Максим', glass: 'clear', note: 'Весільний вінок, імена й дата', tpl: 'anna', alt: 'Весільна свічка з вінком і написом «Анна & Максим, 24.10.2026»' },
+  { id: 'anna', cat: 'wedding', title: 'Анна & Максим', glass: 'clear', note: 'Весільний вінок, імена й дата', tpl: 'anna', alt: 'Весільна свічка з вінком і написом «Анна & Максим, 24.10.2026»' },
   { id: 'together', cat: 'love', title: 'Разом — назавжди', glass: 'clear', note: 'Лінійний малюнок і ваша річниця', tpl: 'together', alt: 'Свічка з малюнком рук і написом «Разом — назавжди. 5 років кохання»' },
   { id: 'onlyus', cat: 'love', title: 'Тільки ми', glass: 'custom', customHex: '#5C1320', customDesc: 'Рубінове скло, як у прикладі «Тільки ми»', note: 'Тонкі лінії на рубіновому склі', tpl: 'onlyus', alt: 'Запалена свічка в рубіновій склянці з лінійним малюнком і написом «Тільки ми»' },
   { id: 'quote', cat: 'gift', photo: 'quote', title: 'Дедлайни зачекають', glass: 'clear', note: 'Фраза для себе, для робочого столу чи тихого вечора', tpl: 'deadline', alt: 'Запалена свічка з написом «Горить свічка. Дедлайни зачекають.» на столі з блокнотом і лавандою' },
   { id: 'nova', cat: 'biz', title: 'NOVA Partners', glass: 'custom', customHex: '#4E4A46', customDesc: 'Димчасте скло, як у прикладі «NOVA Partners»', note: 'Логотип і подяка партнерам', tpl: 'nova', alt: 'Свічка в димчастій склянці з логотипом NOVA Partners і написом «Дякуємо за партнерство» поруч із подарунковою коробкою' },
   { id: 'forma', cat: 'biz', title: 'FORMA', glass: 'clear', note: 'Геометричний орнамент і слоган бренду', tpl: 'forma', alt: 'Свічка з геометричним орнаментом і написом «FORMA. Разом створюємо більше» поруч із брендованою коробкою' }
 ];
-const WORK_CAT = { gift: 'Подарунок', love: 'Кохання й весілля', biz: 'Для бізнесу' };
+const WORK_CAT = { gift: 'Подарунок', love: 'Кохання', wedding: 'Весілля', biz: 'Для бізнесу' };
 const workPhoto = (w) => w.photo ? (window.SITE_PHOTOS[w.photo] || document.querySelector(`img[data-photo="${w.photo}"]`).src) : window.COLLECTION_PHOTOS[w.id];
 function renderWorks(){
   $('#works').innerHTML = WORKS.map((w) => `<figure class="coll" data-work="${w.id}" data-cat="${w.cat}">
@@ -2186,7 +2212,7 @@ $('#batchForm').addEventListener('submit', async (e) => {
     };
     let payload = Object.assign({ schema: 'rdk-candle/batch@1', kind: 'batch', createdAt: new Date().toISOString() }, extra), files = [];
     if (batchCollection){
-      const c = batchCollection, t = CONFIG.pricing.enabled && CONFIG.pricing.tiers.length ? tierFor(extra.quantity) : null;
+      const c = batchCollection, t = CONFIG.pricing.enabled && CONFIG.pricing.tiers.length && !(CONFIG.pricing.quoteFromQty && extra.quantity >= CONFIG.pricing.quoteFromQty) ? tierFor(extra.quantity) : null;
       payload = Object.assign({ schema: 'rdk-candle/collection@1', kind: 'collection', createdAt: new Date().toISOString() }, extra, {
         collection: (() => { const t = collTpl(c), col = colorById(t.colorId), Z = ZONE();
           return { id: c.id, title: c.title, template: c.tpl, glass: { id: col.id, name: col.name },
@@ -2238,13 +2264,14 @@ function toast(text, actLabel, act){
 function renderPricesSection(){
   const P = CONFIG.pricing, sec = $('#tsiny');
   if (!P.enabled || !P.tiers.length){ sec.hidden = true; $$('a[href="#tsiny"]').forEach((a) => { a.hidden = true; }); return; }
-  $('#pricesSection').innerHTML = P.tiers.map((t, i) => `<div class="price-card"><span class="eyebrow">${tierRange(i)}</span><b>${money(t.price)}</b><small>за свічку</small><button type="button" class="btn btn-ghost btn-sm" data-tier-qty="${t.min}">Обрати ${t.min} шт</button></div>`).join('');
-  const notes = [P.approved ? '' : P.note, P.scentSurcharge ? `Аромат: +${money(P.scentSurcharge)} за шт.` : 'Аромат — без доплати.', P.customColorNote, P.quoteFromQty ? `Від ${P.quoteFromQty} шт — індивідуальний розрахунок.` : ''];
+  $('#pricesSection').innerHTML = P.tiers.map((t, i) => `<div class="price-card"><span class="eyebrow">${tierRange(i)}</span><b>${money(t.price)}</b><small>за свічку</small><button type="button" class="btn btn-ghost btn-sm" data-tier-qty="${t.min}">Обрати ${t.min} шт</button></div>`).join('')
+    + (P.quoteFromQty ? `<div class="price-card price-quote"><span class="eyebrow">від ${P.quoteFromQty} шт</span><b>Індивідуально</b><small>розрахуємо під вашу партію</small><button type="button" class="btn btn-ghost btn-sm" data-batch>Обговорити партію</button></div>` : '');
+  const notes = [P.approved ? '' : P.note, P.scentSurcharge ? `Аромат: +${money(P.scentSurcharge)} за шт.` : 'Аромат — без доплати.', P.customColorNote, ''];
   $('#pricesNote').textContent = notes.filter(Boolean).join(' ');
 }
 function staticTexts(){
   renderPricesSection();
-  if (CONFIG.pricing.enabled && CONFIG.pricing.tiers.length) $('#faqPrice').textContent = 'Ціна за свічку залежить від кількості: ' + CONFIG.pricing.tiers.map((t, i) => `${tierRange(i)} — ${money(t.price)}`).join(', ') + '. Конструктор одразу показує суму. ' + (CONFIG.pricing.approved ? '' : 'Ціни орієнтовні: остаточну вартість підтвердимо після погодження макета. ') + CONFIG.pricing.customColorNote;
+  if (CONFIG.pricing.enabled && CONFIG.pricing.tiers.length) $('#faqPrice').textContent = 'Ціна за свічку залежить від кількості: ' + CONFIG.pricing.tiers.map((t, i) => `${tierRange(i)} — ${money(t.price)}`).join(', ') + (CONFIG.pricing.quoteFromQty ? `, від ${CONFIG.pricing.quoteFromQty} шт — індивідуальний розрахунок` : '') + '. Конструктор одразу показує суму. ' + (CONFIG.pricing.approved ? '' : 'Ціни орієнтовні: остаточну вартість підтвердимо після погодження макета. ') + CONFIG.pricing.customColorNote;
   const V = CONFIG.vessel, Z = ZONE(), P = CONFIG.print;
   $('#demoBar').hidden = !CONFIG.showDemoNotice;
   $('#brandName').textContent = CONFIG.brand.name;
@@ -2252,7 +2279,7 @@ function staticTexts(){
   const TT = CONFIG.pricing.tiers;
   const nScents = CONFIG.scents.groups.reduce((n, g) => n + g.items.length, 0);
   $('#heroFacts').innerHTML = `<li><b>${PR.fillMl} мл</b>соєвий віск, скляна тара ${PR.containerMl} мл</li><li><b>3 кольори</b>склянки та інші відтінки під замовлення</li><li><b>${nScents} ароматів</b>або свічка без аромату</li>` + (CONFIG.pricing.enabled && TT.length ? `<li><b>від ${money(TT[TT.length - 1].price)}</b>за свічку в партії від ${TT[TT.length - 1].min} шт</li>` : '');
-  $('#bizPrice').textContent = CONFIG.pricing.enabled && TT.length ? `Від ${TT[TT.length - 1].min} шт — ${money(TT[TT.length - 1].price)} за свічку${CONFIG.pricing.approved ? '' : ' (орієнтовно)'}` : '';
+  $('#bizPrice').textContent = CONFIG.pricing.enabled && TT.length ? `Від ${TT[TT.length - 1].min} шт — ${money(TT[TT.length - 1].price)} за свічку${CONFIG.pricing.approved ? '' : ' (орієнтовно)'}${CONFIG.pricing.quoteFromQty ? `, від ${CONFIG.pricing.quoteFromQty} шт — індивідуальний розрахунок` : ''}.` : '';
   $('#howDots').innerHTML = CONFIG.colors.map((c) => `<span class="dot" style="background:${swatchBg(c)}"></span>`).join('') + '<span class="dot" style="background:conic-gradient(#E7B9A6,#E9D9A3,#B9D2B0,#A9C3D9,#C7B3D8,#E7B9A6)"></span>';
   $('#vesselSpec').innerHTML = `<span><b>${esc(PR.name)}</b></span><span>${esc(PR.wax.toLowerCase())}</span><span>скляна тара місткістю <b>${PR.containerMl} мл</b></span><span>друк на склі <b>${Z.wrap ? 'по колу' : 'спереду'}</b></span>`;
   $('#uploadHint').textContent = `PNG або JPEG до ${P.maxFileMb} МБ. Чим більша роздільність, тим чіткіший друк.` + (Z.wrap ? ' Для друку по всьому колу підійде широке горизонтальне зображення.' : '') + ' Можна перетягнути файл на прев’ю.';

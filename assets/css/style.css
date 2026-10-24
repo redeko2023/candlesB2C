@@ -152,6 +152,12 @@ section{scroll-margin-top:84px}
 .spin-row{display:grid; grid-template-columns:auto minmax(0,1fr) 5.5em auto auto; gap:10px; align-items:center; font-size:14px; font-weight:600}
 .spin-row output{font-size:13px; color:var(--umber); font-weight:500}
 .spin-row .icon-btn{min-height:40px; padding:0 12px; font-size:13.5px}
+.spin-toggle{position:absolute; left:12px; bottom:12px; z-index:2; display:inline-flex; align-items:center; gap:7px; min-height:40px; padding:0 14px; border-radius:999px; border:1px solid var(--line); background:rgba(255,253,249,.88); color:var(--espresso); font:600 13.5px var(--f-body, inherit); cursor:pointer; backdrop-filter:blur(6px)}
+.price-card.price-quote b{font-size:clamp(15px,2.3vw,32px); line-height:1.35}
+.price-card.price-quote .btn{white-space:normal; height:auto; min-height:44px; padding:8px 14px; text-align:center}
+.spin-toggle:hover{border-color:var(--espresso)}
+.spin-toggle[aria-pressed="true"]{background:var(--espresso); color:var(--ivory); border-color:var(--espresso)}
+.spin-toggle:focus-visible{outline:2px solid var(--gold); outline-offset:2px}
 @media (max-width:520px){ .spin-row{display:none} }
 .stage-note{font-size:14px; color:var(--umber); display:flex; gap:8px; align-items:flex-start}
 .stage-note svg{width:18px; height:18px; flex:none; margin-top:2px}
@@ -204,6 +210,7 @@ section{scroll-margin-top:84px}
 .qty .icon-btn{min-width:56px; min-height:56px; font-size:22px}
 .price-box{display:grid; gap:14px; background:var(--ivory); border:1px solid var(--line); border-radius:var(--r-m); padding:18px}
 .tiers{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px}
+.tier b{white-space:nowrap}
 .tier{display:grid; gap:2px; text-align:left; border:1px solid var(--line); background:var(--porcelain); border-radius:var(--r-s); padding:12px; cursor:pointer}
 .tier span{font-size:13px; color:var(--umber); font-weight:600}
 .tier b{font-family:var(--f-display); font-weight:500; font-size:19px}
