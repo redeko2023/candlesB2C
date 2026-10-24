@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>RDK Candle</title>
+<meta name="description" content="Свічка 200 мл з твоїм дизайном: обери колір склянки й аромат, додай напис, зображення або логотип і замов виготовлення.">
+<meta name="theme-color" content="#F8F4EE">
+<meta property="og:type" content="website">
+<meta property="og:title" content="RDK Candle — свічка з твоїм дизайном">
+<meta property="og:description" content="Обери колір склянки й аромат, додай напис, зображення або логотип — ми виготовимо твою свічку.">
+<meta property="og:image" content="assets/img/site/gold.webp">
+<link rel="icon" href="assets/img/site/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700;800&family=Prata&family=Oswald:wght@500&family=Caveat:wght@600&family=Marck+Script&family=Comfortaa:wght@600&family=Playfair+Display:wght@500&display=swap">
+<link rel="stylesheet" href="assets/css/style.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</head>
+<body>
+<div class="demo-bar" id="demoBar" hidden><div class="wrap"><b>Демоверсія.</b><span>Пропорції склянки й зона друку — тимчасові дані для перевірки сайту.</span></div></div>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="На початок сторінки"><span class="brand-mark" aria-hidden="true"></span><b id="brandName">RDK</b><span>candle</span></a>
+    <nav class="nav" aria-label="Розділи">
+      <a href="#konstruktor">Конструктор</a>
+      <a href="#pryklady">Приклади</a>
+      <a href="#kolektsii">Колекції</a>
+      <a href="#tsiny">Ціни</a>
+      <a href="#biznes">Для бізнесу</a>
+      <a href="#pytannia">Питання</a>
+    </nav>
+    <div class="top-cta">
+      <button type="button" class="btn btn-ghost" data-batch>Замовити партію</button>
+      <a class="btn btn-cta" href="#konstruktor" data-go-studio>Створити свою свічку</a>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero" aria-labelledby="h-hero">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <p class="hero-kicker">Свічки 200 мл з друком на склі</p>
+        <h1 id="h-hero">Свічка з твоїм дизайном</h1>
+        <p class="hero-lead">Обери колір склянки й аромат, додай власний напис, зображення або логотип — ми виготовимо твою свічку.</p>
+        <div class="hero-cta">
+          <a class="btn btn-cta btn-lg" href="#konstruktor" data-go-studio>Створити свою свічку</a>
+          <button type="button" class="btn btn-ghost btn-lg" data-batch>Замовити партію</button>
+        </div>
+        <ul class="hero-facts" id="heroFacts"></ul>
+      </div>
+      <figure class="hero-photo">
+        <img data-photo="gold" src="assets/img/site/gold.webp" width="1100" height="1100" alt="Свічка в прозорій склянці із золотим ботанічним орнаментом по колу й монограмою, поруч темна подарункова коробка">
+        <figcaption><b>Власна колекція</b>Орнамент по всьому колу й монограма. <button type="button" class="link-btn" data-use="botanical">Створити схожу свічку</button></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="sec band-stone" aria-labelledby="h-how">
+    <div class="wrap">
+      <div class="sec-head"><h2 id="h-how">Три кроки до своєї свічки</h2><p class="lead">Ти обираєш склянку, аромат і дизайн. Ми погоджуємо з тобою макет і виготовляємо свічку.</p></div>
+      <ol class="how">
+        <li><span class="num" aria-hidden="true">1</span><div class="how-vis" id="howDots" aria-hidden="true"></div><h3>Обери склянку й аромат</h3><p>Прозора, чорна чи біла склянка або інший відтінок під замовлення. Аромат і ґніт — на вибір, віск соєвий.</p></li>
+        <li><span class="num" aria-hidden="true">2</span><div class="how-vis" aria-hidden="true"><div class="tile">Аа <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="M4 18l5-5 4 4 3-3 4 4"/></svg></div></div><h3>Додай свій дизайн</h3><p>Напис, малюнок, фото чи логотип друкуємо прямо на склі, навіть по всьому колу.</p></li>
+        <li><span class="num" aria-hidden="true">3</span><div class="how-vis" aria-hidden="true"><div class="doc"><i></i><i></i><i></i></div></div><h3>Надішли замовлення</h3><p>Вкажи кількість і контакти. Перед виготовленням погодимо з тобою фінальний макет.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="sec studio-sec" id="konstruktor" aria-labelledby="h-studio">
+    <div class="wrap">
+      <div class="sec-head"><h2 id="h-studio">Створи свою свічку</h2><p class="lead">Обери склянку й аромат, додай напис або зображення — прев’ю й ціна оновлюються одразу.</p></div>
+      <div class="studio">
+        <div class="stage" id="stage">
+          <div class="stage-bar">
+            <div class="seg" role="group" aria-label="Вигляд прев’ю">
+              <button type="button" data-view="mock" aria-pressed="true">На свічці</button>
+              <button type="button" data-view="flat" aria-pressed="false">Розгортка</button>
+            </div>
+            <div class="tools">
+              <button type="button" class="icon-btn" id="btnUndo" disabled aria-label="Скасувати останню дію"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 010 11H11"/></svg><span class="lbl">Назад</span></button>
+              <button type="button" class="icon-btn" id="btnZone" aria-pressed="true" aria-label="Показати зону друку"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="3 3"><rect x="4" y="5" width="16" height="14" rx="2"/></svg><span class="lbl">Зона</span></button>
+              <button type="button" class="icon-btn" id="btnLit" aria-pressed="false" aria-label="Запалити свічку в прев’ю"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3c3 4 5 6.5 5 10a5 5 0 01-10 0c0-3.5 2-6 5-10z"/></svg><span class="lbl">Вогник</span></button>
+              <button type="button" class="icon-btn" id="btnReset" aria-label="Скинути дизайн"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 002 2h6a2 2 0 002-2l1-12M9 7V4h6v3"/></svg><span class="lbl">Скинути</span></button>
+            </div>
+          </div>
+          <div class="canvas-wrap" id="canvasWrap">
+            <canvas id="stageCanvas" tabindex="0" aria-label="Прев’ю свічки з вашим дизайном. Клацніть або торкніться елемента, щоб вибрати його, і перетягніть. Стрілки рухають вибраний елемент, Delete видаляє." aria-describedby="selLive"></canvas>
+            <div class="tint-badge" id="tintBadge" hidden>Відтінок орієнтовний</div>
+            <div class="busy" id="stageBusy" hidden><span class="spinner" aria-hidden="true"></span><span>Обробляємо зображення…</span></div>
+          </div>
+          <div class="spin-row" id="spinRow">
+            <label for="spin">Поверни свічку</label>
+            <input type="range" id="spin" min="-180" max="180" step="1" value="0">
+            <output id="o-spin">спереду</output>
+            <button type="button" class="icon-btn" data-spin="0">Перед</button>
+            <button type="button" class="icon-btn" data-spin="180">Зад</button>
+          </div>
+          <p class="stage-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.5"/></svg>Візуалізація орієнтовна. Перед виготовленням погодимо фінальний макет.</p>
+          <p class="save-state" id="saveState" aria-live="polite"></p>
+          <p class="sr-only" id="selLive" aria-live="polite"></p>
+        </div>
+
+        <div class="panel">
+          <div class="steps" role="tablist" aria-label="Кроки конструктора">
+            <button type="button" role="tab" id="tab-color" aria-controls="step-color" aria-selected="true"><small>Крок 1</small><span>Колір</span></button>
+            <button type="button" role="tab" id="tab-scent" aria-controls="step-scent" aria-selected="false" tabindex="-1"><small>Крок 2 · ґніт</small><span>Аромат</span></button>
+            <button type="button" role="tab" id="tab-design" aria-controls="step-design" aria-selected="false" tabindex="-1"><small>Крок 3</small><span>Дизайн</span></button>
+            <button type="button" role="tab" id="tab-review" aria-controls="step-review" aria-selected="false" tabindex="-1"><small>Крок 4</small><span>Замовлення</span></button>
+          </div>
+
+          <div class="step" id="step-color" role="tabpanel" aria-labelledby="tab-color">
+            <div class="block">
+              <div class="block-head"><h4>Колір склянки</h4><span class="hint" id="colorName"></span></div>
+              <div class="swatches" id="swatches" role="group" aria-label="Колір склянки"></div>
+              <p class="hint">Це колір самої склянки, а не воску. Колір дизайну налаштовується окремо.</p>
+            </div>
+            <div class="custom-box" id="customBox" hidden>
+              <div class="field"><label for="cc-desc">Опиши бажаний колір</label><textarea id="cc-desc" rows="2" maxlength="300" placeholder="Наприклад: оливковий, як на фото з прикладу"></textarea></div>
+              <div class="form-row">
+                <div class="field"><label for="cc-code">HEX або RAL <span class="hint">(за бажанням)</span></label><input type="text" id="cc-code" maxlength="40" placeholder="#7A8B5C або RAL 6013" aria-describedby="e-cc-code"><p class="err" id="e-cc-code"></p></div>
+                <div class="field"><label for="cc-hex">Відтінок для прев’ю</label><input type="color" id="cc-hex" value="#B7A08C"></div>
+              </div>
+              <div class="field"><span style="font-weight:700;font-size:14px">Приклад кольору <span class="hint">(за бажанням)</span></span>
+                <div class="row-btns"><label class="btn btn-ghost btn-sm" for="cc-file">Прикріпити фото або PDF</label><button type="button" class="btn btn-ghost btn-sm danger" id="cc-file-del" hidden>Прибрати файл</button></div>
+                <input type="file" id="cc-file" class="sr-only" accept="image/png,image/jpeg,application/pdf,.png,.jpg,.jpeg,.pdf">
+                <p class="hint" id="cc-file-name" role="status"></p></div>
+              <p class="note-box" id="ccNote"></p>
+            </div>
+            <div class="spec" id="vesselSpec"></div>
+            <div class="step-nav"><span></span><button type="button" class="btn btn-primary btn-sm" data-step="scent">Далі: аромат</button></div>
+          </div>
+
+          <div class="step" id="step-scent" role="tabpanel" aria-labelledby="tab-scent" hidden>
+            <div class="block">
+              <h4 style="margin:0;font-size:15px;font-weight:800" id="h-scentmode">Аромат</h4>
+              <div class="mode-row" role="radiogroup" aria-labelledby="h-scentmode">
+                <label class="mode"><input type="radio" name="scentMode" value="none" checked><span><b>Без аромату</b><small>Свічка без ароматизації</small></span></label>
+                <label class="mode"><input type="radio" name="scentMode" value="scent"><span><b>З ароматом</b><small>Один аромат із каталогу</small></span></label>
+              </div>
+            </div>
+            <div class="block" id="scentCatalog" hidden>
+              <div class="block-head"><h4>Характер аромату</h4><span class="hint" id="scentDemo"></span></div>
+              <div class="groups" id="scentGroups" role="group" aria-label="Групи ароматів"></div>
+              <fieldset class="scent-list" id="scentList"></fieldset>
+              <p class="hint">У свічці буде один обраний аромат.</p>
+            </div>
+            <div class="block">
+              <div class="block-head"><h4 id="h-wick">Ґніт</h4><span class="hint" id="waxSpec"></span></div>
+              <div class="mode-row" role="radiogroup" aria-labelledby="h-wick" id="wickRow"></div>
+            </div>
+            <p class="picked" id="scentPicked"></p>
+            <div class="step-nav"><button type="button" class="btn btn-ghost btn-sm" data-step="color">Назад: колір</button><button type="button" class="btn btn-primary btn-sm" data-step="design">Далі: дизайн</button></div>
+          </div>
+
+          <div class="step" id="step-design" role="tabpanel" aria-labelledby="tab-design" hidden>
+            <div class="block">
+              <div class="block-head"><h4>Шаблони</h4><span class="hint">чиста свічка або квіти, усе можна змінити</span></div>
+              <div class="tpl-row" id="tplRow"></div>
+            </div>
+            <div class="block">
+              <h4 style="margin:0;font-size:15px;font-weight:800">Додати</h4>
+              <div class="add-row">
+                <button type="button" class="add-btn" id="btnAddText"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 6V4h14v2M12 4v16M9 20h6"/></svg>Напис</button>
+                <label class="add-btn" for="fileInput" id="uploadLabel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></svg>Зображення або логотип</label>
+                <input type="file" id="fileInput" accept="image/png,image/jpeg,.png,.jpg,.jpeg" class="sr-only">
+              </div>
+              <p class="hint" id="uploadHint"></p>
+              <div class="upload-status" id="uploadStatus" role="status" hidden></div>
+            </div>
+            <div class="block">
+              <div class="block-head"><h4>Фон друку</h4><span class="hint" id="bgHint">суцільна задруківка</span></div>
+              <label class="consent"><input type="checkbox" id="bgOn"><span>Задрукувати всю зону друку кольором</span></label>
+              <div id="bgChips" hidden></div>
+            </div>
+            <div class="block">
+              <div class="block-head"><h4>Елементи дизайну</h4><span class="hint" id="layerCount"></span></div>
+              <ul class="layers" id="layers"></ul>
+            </div>
+            <div id="props"></div>
+            <div class="step-nav"><button type="button" class="btn btn-ghost btn-sm" data-step="scent">Назад: аромат</button><button type="button" class="btn btn-primary btn-sm" data-step="review">Далі: кількість</button></div>
+          </div>
+
+          <div class="step" id="step-review" role="tabpanel" aria-labelledby="tab-review" hidden>
+            <h3>Кількість і замовлення</h3>
+            <div class="block">
+              <label for="qty" style="font-weight:800;font-size:15px">Кількість свічок</label>
+              <div class="qty"><button type="button" class="icon-btn" id="qtyMinus" aria-label="Зменшити кількість">−</button><input type="number" id="qty" min="1" step="1" inputmode="numeric" value="1"><button type="button" class="icon-btn" id="qtyPlus" aria-label="Збільшити кількість">+</button><span class="hint">шт</span></div>
+            </div>
+            <div class="price-box" id="priceBox" aria-live="polite"></div>
+            <ul class="summary" id="reviewSummary"></ul>
+            <div class="checks" id="reviewChecks"></div>
+            <div class="actions">
+              <button type="button" class="btn btn-primary" id="btnOrder">Замовити виготовлення</button>
+              <div class="file-actions">
+                <button type="button" class="btn btn-ghost btn-sm" id="btnSaveProject">Зберегти проєкт у файл</button>
+                <label class="btn btn-ghost btn-sm" for="projectInput">Відкрити проєкт</label>
+                <input type="file" id="projectInput" accept=".zip,.json,application/zip,application/json" class="sr-only">
+              </div>
+              <p class="hint">Чернетка зберігається в цьому браузері автоматично. Файл проєкту допоможе продовжити на іншому пристрої.</p>
+            </div>
+            <div class="step-nav"><button type="button" class="btn btn-ghost btn-sm" data-step="design">Назад: дизайн</button><span></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec band-blush" id="zamovlennia" aria-labelledby="h-order" hidden>
+    <div class="wrap">
+      <div class="sec-head"><h2 id="h-order">Замовити виготовлення</h2><p class="lead">Залиш контакти. Ми підготуємо фінальний макет і розрахунок та зв’яжемося з тобою.</p></div>
+      <div class="order-grid">
+        <div>
+          <form class="form" id="orderForm" novalidate>
+            <div class="form-row">
+              <div class="field"><label for="o-name">Ім’я <span class="req" aria-hidden="true">*</span></label><input type="text" id="o-name" name="name" autocomplete="name" required aria-describedby="e-o-name"><p class="err" id="e-o-name"></p></div>
+              <div class="field"><label for="o-phone">Телефон <span class="req" aria-hidden="true">*</span></label><input type="tel" id="o-phone" name="phone" autocomplete="tel" inputmode="tel" placeholder="+380 __ ___ __ __" required aria-describedby="e-o-phone"><p class="err" id="e-o-phone"></p></div>
+            </div>
+            <div class="form-row">
+              <div class="field"><label for="o-email">Email <span class="hint">(за бажанням)</span></label><input type="email" id="o-email" name="email" autocomplete="email" aria-describedby="e-o-email"><p class="err" id="e-o-email"></p></div>
+              <div class="field"><label for="o-qty">Кількість, шт <span class="req" aria-hidden="true">*</span></label><input type="number" id="o-qty" name="qty" min="1" step="1" inputmode="numeric" required aria-describedby="e-o-qty h-o-qty"><p class="hint" id="h-o-qty"></p><p class="err" id="e-o-qty"></p></div>
+            </div>
+            <div class="field"><label for="o-comment">Коментар</label><textarea id="o-comment" name="comment" rows="3" maxlength="1000" placeholder="Наприклад: до якої дати потрібно, побажання щодо макета"></textarea></div>
+            <label class="consent"><input type="checkbox" id="o-consent" required aria-describedby="e-o-consent"><span>Погоджуюсь на обробку моїх персональних даних для опрацювання заявки. <span class="req" aria-hidden="true">*</span></span></label>
+            <p class="err" id="e-o-consent"></p>
+            <div class="row-btns"><button type="submit" class="btn btn-primary" id="btnSubmitOrder">Надіслати заявку</button><a class="btn btn-ghost" href="#konstruktor">Змінити дизайн</a></div>
+            <div id="orderResult" role="status" aria-live="polite"></div>
+          </form>
+        </div>
+        <aside class="aside" aria-label="Підсумок замовлення">
+          <div class="pv" id="orderPreview"><span class="spinner" aria-hidden="true"></span></div>
+          <ul class="summary" id="orderSummary"></ul>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="pryklady" aria-labelledby="h-ex">
+    <div class="wrap">
+      <div class="sec-head"><h2 id="h-ex">Приклади робіт</h2><p class="lead">Та сама свічка 200 мл, щоразу з іншим дизайном. Візьми будь-який приклад за основу: конструктор відкриє схожий макет, а напис, кольори й графіку зміниш під себе.</p></div>
+      <div class="coll-filter" role="group" aria-label="Тема прикладів" id="worksFilter">
+        <button type="button" data-cat="all" aria-pressed="true">Усі</button>
+        <button type="button" data-cat="gift" aria-pressed="false">Подарунки</button>
+        <button type="button" data-cat="love" aria-pressed="false">Кохання й весілля</button>
+        <button type="button" data-cat="biz" aria-pressed="false">Для бізнесу</button>
+      </div>
+      <div class="colls" id="works"></div>
+      <div class="ideas" id="gallery"></div>
+    </div>
+  </section>
+
+  <section class="sec band-stone" id="kolektsii" aria-labelledby="h-coll">
+    <div class="wrap">
+      <div class="sec-head"><h2 id="h-coll">Готові колекції</h2><p class="lead">Квіткові дизайни по всьому колу склянки. Обери колекцію й замов як є або відкрий у конструкторі, щоб змінити кольори чи додати свій напис.</p></div>
+      <div class="colls" id="colls"></div>
+    </div>
+  </section>
+
+  <section class="sec" id="tsiny" aria-labelledby="h-prices">
+    <div class="wrap">
+      <div class="sec-head"><h2 id="h-prices">Ціна залежить від кількості</h2><p class="lead">Свічка 200 мл з твоїм дизайном на склі. Аромат на вибір або без нього.</p></div>
+      <div class="prices" id="pricesSection"></div>
+      <p class="hint" id="pricesNote" style="margin-top:14px"></p>
+    </div>
+  </section>
+
+  <section class="sec band-dark" id="biznes" aria-labelledby="h-biz">
+    <div class="wrap biz">
+      <div>
+        <h2 id="h-biz">Свічки з вашим брендом</h2>
+        <p style="margin-top:20px;max-width:46ch">Логотип, орнамент чи імена гостей на кожній свічці партії. Розкажіть про задачу й кількість — ми підготуємо макет і розрахунок.</p>
+        <p id="bizPrice" style="margin-top:14px"></p>
+        <ul class="biz-list">
+          <li><b>Брендовані свічки</b><span>Для магазинів, кав’ярень, готелів і студій.</span></li>
+          <li><b>Корпоративні подарунки</b><span>Для команди, клієнтів і партнерів.</span></li>
+          <li><b>Весілля</b><span>Імена й дата на подарунках для гостей.</span></li>
+          <li><b>Заходи</b><span>Відкриття, конференції, свята.</span></li>
+        </ul>
+        <button type="button" class="btn btn-light btn-lg" id="btnBatch">Замовити партію</button>
+      </div>
+      <figure class="biz-photo"><img data-photo="team" src="assets/img/site/team.webp" width="1100" height="1100" alt="Свічки в прозорих склянках з логотипом RDK і темно-зеленим ботанічним орнаментом, позаду брендовані коробки"></figure>
+    </div>
+  </section>
+
+  <section class="sec" id="pytannia" aria-labelledby="h-faq">
+    <div class="wrap">
+      <div class="sec-head"><h2 id="h-faq">Питання та відповіді</h2></div>
+      <div class="faq">
+        <details><summary>Чи можна додати власний файл?</summary><p>Так. У конструкторі завантаж PNG або JPEG — логотип, малюнок чи фото. PNG із прозорим фоном нанесеться без фонового прямокутника. Якщо роздільності файлу замало для обраного розміру, конструктор попередить і підкаже максимальний розмір без втрати якості.</p></details>
+        <details><summary>Як наноситься дизайн?</summary><p>Дизайн друкуємо безпосередньо на поверхні скла методом циліндричного UV-друку.</p></details>
+        <details><summary>Як погоджується макет?</summary><p>Після заявки ми готуємо фінальний макет за твоїм дизайном і надсилаємо його на погодження. Виготовлення починаємо лише після твого підтвердження. Прев’ю в конструкторі орієнтовне.</p></details>
+        <details><summary>Чи можна замовити партію?</summary><p>Так, для компаній, весіль і заходів. Натисни «Замовити партію», вкажи кількість і коротко опиши задачу — ми зв’яжемося, щоб уточнити деталі.</p></details>
+        <details><summary>Скільки коштує свічка?</summary><p id="faqPrice">Вартість розраховуємо після отримання заявки з дизайном, кольором склянки, ароматом і кількістю. Надішли заявку — ми підготуємо розрахунок.</p></details>
+        <details><summary>Який об’єм свічки?</summary><p>Свічка 200 мл. Її виготовляємо в скляній тарі місткістю 250 мл. Склянка одна — однієї форми й розміру.</p></details>
+        <details><summary>Які кольори склянки доступні?</summary><p>Базові кольори — прозора, чорна й біла. Інший відтінок можна запросити: опиши колір, вкажи HEX або RAL чи прикріпи приклад. Можливість виготовлення, мінімальну кількість, вартість і терміни погодимо окремо.</p></details>
+        <details><summary>Чи можна обрати аромат?</summary><p>Так. На кроці «Аромат» обери свічку без аромату або один із ароматів каталогу: фруктові, цитрусові, квіткові, свіжі й гурманські. Іншого аромату можна запитати — можливість виготовлення уточнимо окремо. Аромати не змішуються.</p></details>
+        <details><summary>Який віск і ґніт?</summary><p>Свічки виготовляємо із соєвого воску. Ґніт можна обрати: бавовняний дає класичне рівне полум’я, дерев’яний — ширше полум’я й тихе потріскування.</p></details>
+        <details><summary>Мій дизайн збережеться?</summary><p>Чернетка з кольором, ароматом, дизайном і кількістю автоматично зберігається в цьому браузері. Щоб продовжити на іншому пристрої, на кроці «Замовлення» натисни «Зберегти проєкт у файл», а потім «Відкрити проєкт» на новому пристрої.</p></details>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span id="footBrand"></span>
+    <span id="footContacts"></span>
+    <span>Декор на склі — <a href="https://rdeco.com.ua" target="_blank" rel="noopener">rdeco.com.ua</a></span>
+  </div>
+</footer>
+
+<dialog id="batchDlg" aria-labelledby="h-batch">
+  <form class="dlg" id="batchForm" novalidate>
+    <div class="dlg-head"><div><p class="eyebrow">Для бізнесу та подій</p><h2 id="h-batch" style="margin-top:6px">Замовити партію</h2></div><button type="button" class="icon-btn" id="batchClose" aria-label="Закрити"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="form-row">
+      <div class="field"><label for="b-name">Ім’я <span class="req" aria-hidden="true">*</span></label><input type="text" id="b-name" autocomplete="name" required aria-describedby="e-b-name"><p class="err" id="e-b-name"></p></div>
+      <div class="field"><label for="b-phone">Телефон <span class="req" aria-hidden="true">*</span></label><input type="tel" id="b-phone" autocomplete="tel" inputmode="tel" placeholder="+380 __ ___ __ __" required aria-describedby="e-b-phone"><p class="err" id="e-b-phone"></p></div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label for="b-company">Компанія чи подія</label><input type="text" id="b-company" autocomplete="organization"></div>
+      <div class="field"><label for="b-qty">Кількість, шт <span class="req" aria-hidden="true">*</span></label><input type="number" id="b-qty" min="1" step="1" inputmode="numeric" required aria-describedby="e-b-qty"><p class="err" id="e-b-qty"></p></div>
+    </div>
+    <div class="field"><label for="b-email">Email <span class="hint">(за бажанням)</span></label><input type="email" id="b-email" autocomplete="email" aria-describedby="e-b-email"><p class="err" id="e-b-email"></p></div>
+    <div class="field"><label for="b-comment">Коментар</label><textarea id="b-comment" rows="3" maxlength="1000" placeholder="Що потрібно нанести, для якої події, бажані терміни"></textarea></div>
+    <label class="consent"><input type="checkbox" id="b-consent" required aria-describedby="e-b-consent"><span>Погоджуюсь на обробку моїх персональних даних для опрацювання запиту. <span class="req" aria-hidden="true">*</span></span></label>
+    <p class="err" id="e-b-consent"></p>
+    <label class="consent"><input type="checkbox" id="b-attach"><span>Додати до запиту дизайн із конструктора</span></label>
+    <button type="submit" class="btn btn-primary" id="btnSubmitBatch">Надіслати запит</button>
+    <div id="batchResult" role="status" aria-live="polite"></div>
+  </form>
+</dialog>
+
+<div class="mbar" id="mbar" aria-hidden="true"><div class="mbar-price"><small id="mbarQty">1 шт · свічка 200 мл</small><b id="mbarPrice">—</b></div><button type="button" class="btn btn-cta" id="mbarNext" tabindex="-1">Далі</button></div>
+<div class="toast" id="toast" role="status" aria-live="polite"><span id="toastText"></span><button type="button" id="toastAct" hidden></button></div>
+
+<script src="assets/js/photos.js"></script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>
