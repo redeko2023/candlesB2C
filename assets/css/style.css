@@ -340,7 +340,6 @@ input[type=range]{width:100%; accent-color:var(--espresso); min-height:36px}
 .coll .ph canvas{width:100%; height:100%; display:block}
 .coll .ph.mock{background:radial-gradient(120% 90% at 50% 18%, #FFFDF9 0%, #F3ECE3 62%, #E9E0D5 100%)}
 #gallery .idea-d{margin-top:72px}
-@media (min-width:781px){ #colls{grid-template-columns:repeat(3,minmax(0,1fr))} }
 .coll:hover .ph img{transform:scale(1.03)}
 .coll .tag{font-size:13px; font-weight:600; color:var(--gold-text)}
 .coll h3{font-size:23px; line-height:1.15}
@@ -396,6 +395,71 @@ footer a{color:var(--gold); display:inline-block; padding-block:12px}
 /* ---------- діалог і тост ---------- */
 dialog{border:0; border-radius:var(--r-m); padding:0; width:min(580px, calc(100vw - 32px)); max-height:calc(100dvh - 32px); background:var(--porcelain); color:var(--espresso); box-shadow:0 40px 90px -30px rgba(43,33,28,.55)}
 dialog::backdrop{background:rgba(43,33,28,.55)}
+/* ---------- два розділи: магазин і B2B ---------- */
+body:not([data-mode="b2b"]) [data-only="b2b"], body[data-mode="b2b"] [data-only="shop"]{display:none!important}
+body:not([data-mode="b2b"]) #mbar, body:not([data-mode="b2b"]) #demoBar{display:none!important}
+.nav a.nav-accent{color:var(--gold-text); font-weight:600}
+@media (max-width:1100px){
+  .top .wrap{flex-wrap:wrap; row-gap:0}
+  .nav{display:flex; order:3; width:100%; margin:0; gap:22px; overflow-x:auto; padding:0 0 10px; scrollbar-width:none}
+  .nav::-webkit-scrollbar{display:none}
+  .nav a{white-space:nowrap; font-size:14px}
+  .nav a.nav-accent{order:-1}
+}
+.cart-btn{position:relative; gap:8px}
+.cart-count{display:inline-grid; place-items:center; min-width:22px; height:22px; padding:0 6px; border-radius:999px; background:var(--gold); color:#fff; font-size:12.5px; font-weight:700}
+@media (max-width:640px){ .cart-btn > span:not(.cart-count){display:none} .top-cta .cart-btn{display:inline-flex!important} }
+.btn-ghost-light{background:transparent; color:var(--ivory); border:1px solid rgba(248,244,238,.45)}
+.btn-ghost-light:hover{border-color:var(--ivory)}
+/* ---------- каталог ---------- */
+.coll .ph{display:block; width:100%; padding:0; border:0; cursor:pointer; font:inherit}
+.coll .ph:focus-visible{outline:2px solid var(--gold); outline-offset:3px}
+.coll .tags{display:flex; gap:10px; flex-wrap:wrap}
+.shop-note{margin-top:36px; max-width:70ch}
+.aromas{display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:28px 32px}
+.aromas h3{font-size:21px; margin-bottom:10px}
+.aromas ul{list-style:none; margin:0; padding:0; display:grid; gap:6px}
+.aromas li{font-size:15px; color:var(--umber)}
+.aromas li b{color:var(--espresso); font-weight:600}
+/* ---------- картка товару ---------- */
+dialog.product-dlg{width:min(980px, calc(100vw - 32px))}
+.pd{display:grid; grid-template-columns:minmax(0,1.05fr) minmax(0,1fr)}
+.pd-media{background:radial-gradient(120% 90% at 50% 18%, #FFFDF9 0%, #F3ECE3 62%, #E9E0D5 100%); aspect-ratio:1/1}
+.pd-media img, .pd-media canvas{width:100%; height:100%; object-fit:cover; display:block}
+.pd-media canvas{object-fit:contain}
+@media (min-width:761px){ .pd-media{aspect-ratio:auto; min-height:100%} }
+#shopGrid .coll{grid-template-rows:auto 1fr}
+#shopGrid figcaption{display:flex!important; flex-direction:column}
+#shopGrid .row-btns{margin-top:auto; padding-top:6px}
+.pd-body{padding:28px; display:grid; gap:16px; align-content:start}
+.pd-meta{font-size:14px; color:var(--umber)}
+.pd-wick{border:0; padding:0; margin:0}
+.pd-wick legend{font-weight:600; font-size:14.5px; margin-bottom:8px; padding:0}
+.pd-seg{display:flex; gap:8px; flex-wrap:wrap}
+.pd-seg label{display:inline-flex; align-items:center; gap:8px; min-height:44px; padding:0 14px; border:1px solid var(--line); border-radius:var(--r-s); cursor:pointer; font-size:14.5px}
+.pd-seg input{accent-color:var(--espresso)}
+.pd-seg label:has(input:checked){border-color:var(--espresso); background:var(--ivory)}
+.stepper{display:flex; gap:8px; align-items:center}
+.stepper input{width:84px; text-align:center}
+.pd-price{display:grid; gap:4px}
+.pd-price b{font-family:var(--f-display); font-weight:500; font-size:28px}
+@media (max-width:760px){ .pd{grid-template-columns:1fr} .pd-media{aspect-ratio:4/3} .pd-body{padding:20px} }
+/* ---------- кошик ---------- */
+dialog.drawer{margin:0 0 0 auto; width:min(480px, 100vw); height:100dvh; max-height:100dvh; border-radius:0}
+.cart-list{list-style:none; margin:0; padding:0; display:grid; gap:14px}
+.cart-item{display:grid; grid-template-columns:72px minmax(0,1fr) auto; gap:12px; align-items:center; padding-bottom:14px; border-bottom:1px solid var(--line)}
+.cart-item .thumb{width:72px; height:72px; border-radius:10px; overflow:hidden; background:var(--ivory)}
+.cart-item .thumb img, .cart-item .thumb canvas{width:100%; height:100%; object-fit:cover; display:block}
+.cart-item b{display:block; font-weight:600}
+.cart-item small{display:block; color:var(--umber); font-size:13px; line-height:1.45}
+.cart-item .stepper .icon-btn{min-width:36px; min-height:36px; padding:0}
+.cart-item .stepper input{width:48px; min-height:36px; padding:0 4px}
+.cart-tot{display:grid; gap:6px; padding:16px 0 4px}
+.cart-tot div{display:flex; justify-content:space-between; gap:12px}
+.cart-tot .sum{font-family:var(--f-display); font-size:26px}
+.checkout{display:grid; gap:14px; padding-top:18px; border-top:1px solid var(--line)}
+.checkout h3{font-size:22px}
+.cart-empty{color:var(--umber)}
 .dlg{padding:28px; display:grid; gap:16px}
 .dlg-head{display:flex; justify-content:space-between; align-items:start; gap:12px}
 .dlg-head h2{font-size:30px}

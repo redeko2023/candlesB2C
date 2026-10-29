@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>RDK Candle</title>
+<title>RDK Candle — свічки з малюнком на склі</title>
 <meta name="description" content="Свічка 200 мл з твоїм дизайном: обери колір склянки й аромат, додай напис, зображення або логотип і замов виготовлення.">
 <meta name="theme-color" content="#F8F4EE">
 <meta property="og:type" content="website">
@@ -24,36 +24,114 @@
   <div class="wrap">
     <a class="brand" href="#top" aria-label="На початок сторінки"><span class="brand-mark" aria-hidden="true"></span><b id="brandName">RDK</b><span>candle</span></a>
     <nav class="nav" aria-label="Розділи">
-      <a href="#konstruktor">Конструктор</a>
-      <a href="#pryklady">Приклади</a>
-      <a href="#kolektsii">Колекції</a>
-      <a href="#tsiny">Ціни</a>
-      <a href="#biznes">Для бізнесу</a>
-      <a href="#pytannia">Питання</a>
+      <a href="#katalog" data-only="shop">Каталог</a>
+      <a href="#aromaty" data-only="shop">Аромати</a>
+      <a href="#pytannia-shop" data-only="shop">Питання</a>
+      <a href="#b2b" class="nav-accent" data-only="shop">B2B кастомізація</a>
+      <a href="#top" data-only="b2b">Магазин</a>
+      <a href="#konstruktor" data-only="b2b">Конструктор</a>
+      <a href="#pryklady" data-only="b2b">Приклади</a>
+      <a href="#tsiny" data-only="b2b">Ціни</a>
+      <a href="#biznes" data-only="b2b">Партії</a>
+      <a href="#pytannia" data-only="b2b">Питання</a>
     </nav>
     <div class="top-cta">
-      <button type="button" class="btn btn-ghost" data-batch>Замовити партію</button>
-      <a class="btn btn-cta" href="#konstruktor" data-go-studio>Створити свою свічку</a>
+      <button type="button" class="btn btn-ghost" data-batch data-only="b2b">Обговорити партію</button>
+      <a class="btn btn-cta" href="#konstruktor" data-go-studio data-only="b2b">Відкрити конструктор</a>
+      <button type="button" class="btn btn-cta cart-btn" id="cartBtn" data-only="shop" aria-label="Кошик, товарів: 0"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1.2 11.1a2 2 0 0 1-2 1.9H8.2a2 2 0 0 1-2-1.9z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg><span>Кошик</span><span class="cart-count" id="cartCount" hidden>0</span></button>
     </div>
   </div>
 </header>
 
 <main id="top">
+  <div data-page="shop">
+  <section class="hero" aria-labelledby="h-shop">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <p class="hero-kicker">Соєві свічки 200 мл з малюнком на склі</p>
+        <h1 id="h-shop">Свічки, які хочеться дарувати</h1>
+        <p class="hero-lead">Квіткові дизайни й теплі слова на склі. Оберіть свічку, аромат і ґніт — ми підготуємо ваше замовлення.</p>
+        <div class="hero-cta">
+          <a class="btn btn-cta btn-lg" href="#katalog">Обрати свічку</a>
+          <a class="btn btn-ghost btn-lg" href="#b2b">Свічка з вашим дизайном</a>
+        </div>
+        <ul class="hero-facts" id="shopFacts"></ul>
+      </div>
+      <figure class="hero-photo">
+        <img data-photo="gold" src="assets/img/site/gold.webp" width="1100" height="1100" alt="Свічка в прозорій склянці із золотим ботанічним орнаментом по колу й монограмою, поруч темна подарункова коробка">
+        <figcaption><b>Золоті трави</b>Тонкі золоті гілки по колу склянки. <button type="button" class="link-btn" data-product="gold">Переглянути свічку</button></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="sec" id="katalog" aria-labelledby="h-cat">
+    <div class="wrap">
+      <div class="sec-head"><h2 id="h-cat">Каталог свічок</h2><p class="lead">Одна склянка — різні історії. Аромат і ґніт обираєте під час замовлення.</p></div>
+      <div class="coll-filter" role="group" aria-label="Категорія свічок" id="shopFilter">
+        <button type="button" data-cat="all" aria-pressed="true">Усі</button>
+        <button type="button" data-cat="floral" aria-pressed="false">Квіткові</button>
+        <button type="button" data-cat="gift" aria-pressed="false">Подарунки</button>
+        <button type="button" data-cat="love" aria-pressed="false">Кохання</button>
+      </div>
+      <div class="colls" id="shopGrid"></div>
+      <p class="hint shop-note" id="shopPriceNote"></p>
+    </div>
+  </section>
+
+  <section class="sec band-stone" id="aromaty" aria-labelledby="h-aroma">
+    <div class="wrap">
+      <div class="sec-head"><h2 id="h-aroma">Аромати</h2><p class="lead">Кожну свічку можна замовити з одним ароматом або без нього.</p></div>
+      <div class="aromas" id="aromaList"></div>
+    </div>
+  </section>
+
+  <section class="sec band-dark" aria-labelledby="h-teaser">
+    <div class="wrap biz">
+      <div>
+        <p class="eyebrow" style="color:var(--gold)">B2B кастомізація</p>
+        <h2 id="h-teaser" style="margin-top:10px">Свічки з вашим логотипом і дизайном</h2>
+        <p style="margin-top:20px;max-width:46ch">Для компаній, весіль і подій. Створіть дизайн у конструкторі або надішліть свій — ми погодимо макет і виготовимо партію.</p>
+        <div class="row-btns" style="margin-top:28px">
+          <a class="btn btn-light btn-lg" href="#b2b">Перейти до кастомізації</a>
+          <a class="btn btn-ghost-light btn-lg" href="#konstruktor" data-go-studio>Відкрити конструктор</a>
+        </div>
+      </div>
+      <figure class="biz-photo"><img data-coll-photo="nova" width="720" height="720" alt="Свічка з логотипом компанії поруч із подарунковою коробкою"></figure>
+    </div>
+  </section>
+
+  <section class="sec" id="pytannia-shop" aria-labelledby="h-faq-shop">
+    <div class="wrap">
+      <div class="sec-head"><h2 id="h-faq-shop">Питання та відповіді</h2></div>
+      <div class="faq">
+        <details><summary>Як замовити свічку?</summary><p>Оберіть свічку в каталозі, аромат, ґніт і кількість та додайте її в кошик. Потім залиште ім’я, телефон і дані для доставки — ми зв’яжемося, щоб підтвердити замовлення.</p></details>
+        <details><summary>Скільки коштує свічка?</summary><p id="shopFaqPrice"></p></details>
+        <details><summary>Який об’єм і віск?</summary><p>Свічка 200 мл із соєвого воску в скляній тарі місткістю 250 мл.</p></details>
+        <details><summary>Які є аромати?</summary><p id="shopFaqScents"></p></details>
+        <details><summary>Який ґніт обрати?</summary><p>Бавовняний ґніт дає класичне рівне полум’я, дерев’яний — ширше полум’я й тихе потріскування.</p></details>
+        <details><summary>Як доставка й оплата?</summary><p>Спосіб доставки й оплати погодимо, коли зв’яжемося з вами для підтвердження замовлення.</p></details>
+        <details><summary>Чи можна змінити напис або додати свій дизайн?</summary><p>Так. У розділі <a href="#b2b">B2B кастомізація</a> є конструктор: оберіть колір склянки, додайте напис, зображення або логотип і надішліть заявку.</p></details>
+      </div>
+    </div>
+  </section>
+  </div>
+
+  <div data-page="b2b" id="b2b" hidden>
   <section class="hero" aria-labelledby="h-hero">
     <div class="wrap hero-grid">
       <div class="hero-copy">
-        <p class="hero-kicker">Свічки 200 мл з друком на склі</p>
-        <h1 id="h-hero">Свічка з твоїм дизайном</h1>
-        <p class="hero-lead">Обери колір склянки й аромат, додай власний напис, зображення або логотип — ми виготовимо твою свічку.</p>
+        <p class="hero-kicker">B2B кастомізація</p>
+        <h1 id="h-hero">Свічки з вашим дизайном і логотипом</h1>
+        <p class="hero-lead">Для компаній, весіль і подій. Оберіть колір склянки й аромат, додайте логотип, напис або зображення в конструкторі — ми погодимо макет і виготовимо партію.</p>
         <div class="hero-cta">
-          <a class="btn btn-cta btn-lg" href="#konstruktor" data-go-studio>Створити свою свічку</a>
-          <button type="button" class="btn btn-ghost btn-lg" data-batch>Замовити партію</button>
+          <a class="btn btn-cta btn-lg" href="#konstruktor" data-go-studio>Відкрити конструктор</a>
+          <button type="button" class="btn btn-ghost btn-lg" data-batch>Обговорити партію</button>
         </div>
         <ul class="hero-facts" id="heroFacts"></ul>
       </div>
       <figure class="hero-photo">
-        <img data-photo="gold" src="assets/img/site/gold.webp" width="1100" height="1100" alt="Свічка в прозорій склянці із золотим ботанічним орнаментом по колу й монограмою, поруч темна подарункова коробка">
-        <figcaption><b>Власна колекція</b>Орнамент по всьому колу й монограма. <button type="button" class="link-btn" data-use="botanical">Створити схожу свічку</button></figcaption>
+        <img data-coll-photo="forma" width="720" height="720" alt="Свічка з геометричним орнаментом і назвою бренду поруч із брендованою коробкою">
+        <figcaption><b>Брендована колекція</b>Логотип, орнамент і слоган на кожній свічці. <button type="button" class="link-btn" data-use="forma">Створити схожу свічку</button></figcaption>
       </figure>
     </div>
   </section>
@@ -253,13 +331,6 @@
     </div>
   </section>
 
-  <section class="sec band-stone" id="kolektsii" aria-labelledby="h-coll">
-    <div class="wrap">
-      <div class="sec-head"><h2 id="h-coll">Готові колекції</h2><p class="lead">Квіткові дизайни по всьому колу склянки. Обери колекцію й замов як є або відкрий у конструкторі, щоб змінити кольори чи додати свій напис.</p></div>
-      <div class="colls" id="colls"></div>
-    </div>
-  </section>
-
   <section class="sec" id="tsiny" aria-labelledby="h-prices">
     <div class="wrap">
       <div class="sec-head"><h2 id="h-prices">Ціна залежить від кількості</h2><p class="lead">Свічка 200 мл з твоїм дизайном на склі. Аромат на вибір або без нього.</p></div>
@@ -303,6 +374,7 @@
       </div>
     </div>
   </section>
+  </div>
 </main>
 
 <footer>
@@ -332,6 +404,44 @@
     <button type="submit" class="btn btn-primary" id="btnSubmitBatch">Надіслати запит</button>
     <div id="batchResult" role="status" aria-live="polite"></div>
   </form>
+</dialog>
+
+<dialog id="productDlg" class="product-dlg" aria-labelledby="h-product">
+  <div class="pd">
+    <div class="pd-media" id="pdMedia"></div>
+    <form class="pd-body" id="pdForm" novalidate>
+      <div class="dlg-head"><div><p class="eyebrow" id="pdCat"></p><h2 id="h-product" style="margin-top:6px"></h2></div><button type="button" class="icon-btn" data-close aria-label="Закрити"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+      <p id="pdDesc"></p>
+      <p class="pd-meta" id="pdMeta"></p>
+      <div class="field"><label for="pd-scent">Аромат</label><select id="pd-scent"></select></div>
+      <fieldset class="field pd-wick"><legend>Ґніт</legend><div class="pd-seg" id="pdWick"></div></fieldset>
+      <div class="field"><label for="pd-qty">Кількість</label>
+        <div class="stepper"><button type="button" class="icon-btn" data-step="-1" aria-label="Менше">−</button><input type="number" id="pd-qty" min="1" max="999" step="1" value="1" inputmode="numeric"><button type="button" class="icon-btn" data-step="1" aria-label="Більше">+</button></div>
+      </div>
+      <div class="pd-price" id="pdPrice" aria-live="polite"></div>
+      <button type="submit" class="btn btn-cta btn-lg">Додати в кошик</button>
+    </form>
+  </div>
+</dialog>
+
+<dialog id="cartDlg" class="drawer" aria-labelledby="h-cart">
+  <div class="dlg">
+    <div class="dlg-head"><h2 id="h-cart">Кошик</h2><button type="button" class="icon-btn" data-close aria-label="Закрити кошик"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div id="cartBody"></div>
+    <form id="checkoutForm" class="checkout" novalidate hidden>
+      <h3>Оформлення замовлення</h3>
+      <div class="field"><label for="c-name">Ім’я <span class="req" aria-hidden="true">*</span></label><input type="text" id="c-name" autocomplete="name" required aria-describedby="e-c-name"><p class="err" id="e-c-name"></p></div>
+      <div class="field"><label for="c-phone">Телефон <span class="req" aria-hidden="true">*</span></label><input type="tel" id="c-phone" autocomplete="tel" inputmode="tel" placeholder="+380 __ ___ __ __" required aria-describedby="e-c-phone"><p class="err" id="e-c-phone"></p></div>
+      <div class="field"><label for="c-email">Email <span class="hint">(за бажанням)</span></label><input type="email" id="c-email" autocomplete="email" aria-describedby="e-c-email"><p class="err" id="e-c-email"></p></div>
+      <div class="field"><label for="c-city">Місто <span class="req" aria-hidden="true">*</span></label><input type="text" id="c-city" autocomplete="address-level2" required aria-describedby="e-c-city"><p class="err" id="e-c-city"></p></div>
+      <div class="field"><label for="c-delivery">Відділення пошти або адреса <span class="hint">(за бажанням)</span></label><input type="text" id="c-delivery" autocomplete="street-address"></div>
+      <div class="field"><label for="c-comment">Коментар</label><textarea id="c-comment" rows="2" maxlength="1000"></textarea></div>
+      <label class="consent"><input type="checkbox" id="c-consent" required aria-describedby="e-c-consent"><span>Погоджуюсь на обробку моїх персональних даних для опрацювання замовлення. <span class="req" aria-hidden="true">*</span></span></label>
+      <p class="err" id="e-c-consent"></p>
+      <button type="submit" class="btn btn-primary" id="btnCheckout">Надіслати замовлення</button>
+      <div id="checkoutResult" role="status" aria-live="polite"></div>
+    </form>
+  </div>
 </dialog>
 
 <div class="mbar" id="mbar" aria-hidden="true"><div class="mbar-price"><small id="mbarQty">1 шт · свічка 200 мл</small><b id="mbarPrice">—</b></div><button type="button" class="btn btn-cta" id="mbarNext" tabindex="-1">Далі</button></div>

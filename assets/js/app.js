@@ -1889,31 +1889,6 @@ const COLLECTIONS = [
   { id: 'bouquet', tpl: 'f-bouquet', title: 'Букет по колу', note: 'Польові букети по всьому колу' }
 ];
 const collTpl = (c) => TEMPLATES.find((t) => t.id === c.tpl);
-function renderCollections(){
-  const T0 = CONFIG.pricing.enabled && CONFIG.pricing.tiers.length ? CONFIG.pricing.tiers : null;
-  const price = T0 ? `Від ${money(T0[T0.length - 1].price)} за шт.${CONFIG.pricing.approved ? '' : ' <span class="hint" style="font-weight:500">орієнтовно</span>'}` : 'Отримати розрахунок';
-  $('#colls').innerHTML = COLLECTIONS.map((c) => { const t = collTpl(c), col = colorById(t.colorId); return `<figure class="coll" data-coll="${c.id}">
-      <div class="ph mock"><canvas width="720" height="720" role="img" aria-label="${esc(`Свічка «${c.title}»: ${c.note.toLowerCase()} на склянці кольору «${col.name.toLowerCase()}»`)}"></canvas></div>
-      <figcaption style="display:grid;gap:6px">
-        <h3>${esc(c.title)}</h3>
-        <p class="meta">${esc(c.note)}. ${esc(col.name)} склянка.</p>
-        <p class="price">${price}</p>
-        <div class="row-btns"><button type="button" class="btn btn-cta btn-sm" data-coll-order="${c.id}">Замовити</button><button type="button" class="btn btn-ghost btn-sm" data-coll-edit="${c.id}">Змінити дизайн</button></div>
-      </figcaption></figure>`; }).join('');
-  paintCollections();
-}
-function paintCollections(){
-  $$('#colls .coll').forEach((f) => {
-    const c = COLLECTIONS.find((x) => x.id === f.dataset.coll), t = collTpl(c), cv = f.querySelector('canvas'), ctx = cv.getContext('2d');
-    ctx.clearRect(0, 0, cv.width, cv.height);
-    paintCandle(ctx, cv.width, cv.height, colorById(t.colorId), templateEls(t), { geom: { fitW: 0.9, fitH: 0.9, headMm: 6 } });
-  });
-}
-$('#colls').addEventListener('click', (e) => {
-  const o = e.target.closest('[data-coll-order]'), ed = e.target.closest('[data-coll-edit]');
-  if (o) openBatchDialog(COLLECTIONS.find((c) => c.id === o.dataset.collOrder));
-  if (ed){ const c = COLLECTIONS.find((x) => x.id === ed.dataset.collEdit); applyTemplate(c.tpl, { silent: true }); openInStudio(`Колекцію «${c.title}» відкрито в конструкторі. Зміни кольори або додай свій напис.`); }
-});
 document.addEventListener('click', (e) => {
   const b = e.target.closest('[data-use]'); if (!b || !b.closest('#gallery, .hero-photo')) return;
   applyTemplate(b.dataset.use); goStep('design');
@@ -2293,7 +2268,253 @@ function fontsReady(){
   loads.push(document.fonts.load('700 40px "Manrope"', 'ДЛЯ'), document.fonts.load('500 40px "Lora"', 'Свічка'));
   return Promise.race([Promise.allSettled(loads), new Promise((r) => setTimeout(r, 3500))]);
 }
-function repaintAll(){ renderHero(); paintGallery(); paintTemplateChips(); paintCollections(); requestRender(); if (selectedEl()) syncProps(); }
+
+/* ===================== Магазин готових свічок =====================
+   PRODUCTS — каталог. photo — ключ фото (SITE_PHOTOS / img[data-photo] / COLLECTION_PHOTOS);
+   tpl — квітковий дизайн, який малюється на мокапі склянки (той самий, що в конструкторі).
+   Ціна за свічку береться з CONFIG.pricing і залежить від загальної кількості в кошику (CONFIG.shop.tierByCartQty). */
+const SHOP_CAT = { floral: 'Квіткові', gift: 'Подарунки', love: 'Кохання' };
+const PRODUCTS = [
+  { id: 'gold', photo: 'gold', cats: ['floral'], title: 'Золоті трави', desc: 'Тонкі золоті гілки трав по всьому колу склянки й маленька монограма.', glass: 'clear', alt: 'Свічка із золотими травами по колу склянки поруч із темною подарунковою коробкою' },
+  { id: 'kvitny', photo: 'kvitny', cats: ['floral', 'gift'], title: 'Квітни', desc: 'Рум’яні півонії та бордові квіти по колу й напис «Квітни».', glass: 'clear', alt: 'Свічка з півоніями по всьому колу й написом «Квітни»' },
+  { id: 'mama', photo: 'mama', cats: ['gift'], title: 'Мамо, дякую за тепло', desc: 'Польові квіти з боків і напис від руки — подарунок для мами.', glass: 'clear', alt: 'Свічка з написом «Мамо, дякую за тепло» і польовими квітами' },
+  { id: 'bestyear', photo: 'bestyear', cats: ['gift'], title: 'Твій найкращий рік', desc: 'Квіткова рамка й привітання з днем народження.', glass: 'clear', alt: 'Свічка з написом «Твій найкращий рік. З днем народження» в квітковій рамці' },
+  { id: 'special', photo: 'gift', cats: ['gift', 'love'], title: 'Ти — особлива', desc: 'Кілька теплих слів і маленьке серце.', glass: 'clear', alt: 'Свічка з написом «Ти — особлива» і сердечком поруч із подарунковою коробкою' },
+  { id: 'f-wild', tpl: 'f-wild', cats: ['floral'], title: 'Польові квіти', desc: 'Ромашки, бордові суцвіття й гіпсофіла з обох боків склянки.' },
+  { id: 'f-peony', tpl: 'f-peony', cats: ['floral', 'love'], title: 'Півонії й троянди', desc: 'Рум’яні півонії та бордові троянди по всьому колу.' },
+  { id: 'f-frame', tpl: 'f-frame', cats: ['floral', 'love'], title: 'Квіткова рамка', desc: 'Тонкі гілки з бордовими й рум’яними квітами.' },
+  { id: 'f-wreath', tpl: 'f-wreath', cats: ['floral'], title: 'Квітковий вінок', desc: 'Вінок із зелені, білих квітів і бутонів.' },
+  { id: 'f-meadow', tpl: 'f-meadow', cats: ['floral'], title: 'Луговий бордюр', desc: 'Ромашки й гіпсофіла по низу склянки.' },
+  { id: 'f-bouquet', tpl: 'f-bouquet', cats: ['floral'], title: 'Букет по колу', desc: 'Польові букети навколо білої склянки.' }
+];
+const productById = (id) => PRODUCTS.find((x) => x.id === id);
+const productTpl = (pr) => pr.tpl ? TEMPLATES.find((t) => t.id === pr.tpl) : null;
+const productGlass = (pr) => colorById(pr.tpl ? productTpl(pr).colorId : pr.glass);
+function productSrc(pr){
+  if (pr.tpl) return null;
+  return (window.SITE_PHOTOS || {})[pr.photo] || (window.COLLECTION_PHOTOS || {})[pr.photo] || document.querySelector(`img[data-photo="${pr.photo}"]`)?.src || '';
+}
+const tplEls = {};   // кеш елементів квіткових дизайнів (координати однакові для всіх рендерів)
+function paintProduct(cv, pr, phi = 0){
+  const t = productTpl(pr); if (!t) return;
+  if (!tplEls[pr.id]) tplEls[pr.id] = templateEls(t);
+  const ctx = cv.getContext('2d'); ctx.clearRect(0, 0, cv.width, cv.height);
+  paintCandle(ctx, cv.width, cv.height, colorById(t.colorId), tplEls[pr.id], { geom: { fitW: 0.9, fitH: 0.9, headMm: 6, phi } });
+}
+function productMedia(pr, size = 720, cls = ''){
+  return pr.tpl ? `<canvas width="${size}" height="${size}" data-paint="${pr.id}" role="img" aria-label="${esc('Свічка «' + pr.title + '»: ' + pr.desc)}"></canvas>`
+    : `<img src="${productSrc(pr)}" width="${size}" height="${size}" alt="${esc(pr.alt || pr.title)}"${cls}>`;
+}
+const basePrice = () => { const P = CONFIG.pricing; return P.enabled && P.tiers.length ? P.tiers[0].price : null; };
+function renderShop(){
+  const bp = basePrice(), P = CONFIG.pricing;
+  $('#shopGrid').innerHTML = PRODUCTS.map((pr) => `<figure class="coll" data-product-card="${pr.id}" data-cats="${pr.cats.join(' ')}">
+      <button type="button" class="ph${pr.tpl ? ' mock' : ''}" data-product="${pr.id}" aria-label="Переглянути свічку «${esc(pr.title)}»">${productMedia(pr)}</button>
+      <figcaption style="display:grid;gap:6px">
+        <span class="tag">${pr.cats.map((c) => SHOP_CAT[c]).join(' · ')}</span>
+        <h3>${esc(pr.title)}</h3>
+        <p class="meta">${esc(pr.desc)} ${esc(productGlass(pr).name)} склянка.</p>
+        <p class="price">${bp ? money(bp) : 'Ціна за запитом'}${bp && !P.approved ? ' <span class="hint" style="font-weight:500">орієнтовно</span>' : ''}</p>
+        <div class="row-btns"><button type="button" class="btn btn-cta btn-sm" data-product="${pr.id}">Обрати</button></div>
+      </figcaption></figure>`).join('');
+  paintShop();
+  const T = P.tiers;
+  $('#shopPriceNote').textContent = P.enabled && T.length ? `Ціна за свічку залежить від загальної кількості в кошику: ${T.map((t, i) => `${tierRange(i)} — ${money(t.price)}`).join(', ')}${P.quoteFromQty ? `, від ${P.quoteFromQty} шт — індивідуальний розрахунок` : ''}.${P.approved ? '' : ' Ціни орієнтовні.'}` : '';
+  $('#shopFaqPrice').textContent = $('#shopPriceNote').textContent + ' Аромат і ґніт — без доплати.';
+  const sc = allScents(); $('#shopFaqScents').textContent = `У каталозі ${sc.length} ароматів: ${CONFIG.scents.groups.map((g) => g.name.toLowerCase()).join(', ')}. Свічку можна замовити й без аромату.`;
+  $('#aromaList').innerHTML = CONFIG.scents.groups.map((g) => `<div><h3>${esc(g.name)}</h3><ul>${g.items.filter((i) => i.available !== false).map((i) => `<li><b>${esc(i.name)}</b>${i.desc ? ' — ' + esc(i.desc.toLowerCase()) : ''}</li>`).join('')}</ul></div>`).join('');
+  const PR = CONFIG.product;
+  $('#shopFacts').innerHTML = `<li><b>${PR.fillMl} мл</b>соєвий віск, скляна тара ${PR.containerMl} мл</li><li><b>${sc.length} ароматів</b>або свічка без аромату</li><li><b>2 види ґноту</b>бавовняний або дерев’яний</li>` + (bp ? `<li><b>від ${money(T[T.length - 1].price)}</b>за свічку при більшій кількості</li>` : '');
+  $$('img[data-coll-photo]').forEach((im) => { im.src = (window.COLLECTION_PHOTOS || {})[im.dataset.collPhoto] || ''; });
+}
+function paintShop(){ $$('canvas[data-paint]').forEach((cv) => { const pr = productById(cv.dataset.paint); if (pr && cv.closest('#shopGrid, #cartBody')) paintProduct(cv, pr); }); }
+$('#shopFilter').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-cat]'); if (!b) return;
+  $$('#shopFilter [data-cat]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  $$('#shopGrid .coll').forEach((f) => { f.hidden = b.dataset.cat !== 'all' && !f.dataset.cats.split(' ').includes(b.dataset.cat); });
+});
+
+/* ---------- картка товару ---------- */
+const pdDlg = $('#productDlg');
+let pdProduct = null, pdRaf = 0;
+function openDlg(d){ if (d.showModal) d.showModal(); else d.setAttribute('open', ''); }
+function closeDlg(d){ if (d.close) d.close(); else d.removeAttribute('open'); }
+$$('dialog [data-close]').forEach((b) => b.addEventListener('click', () => closeDlg(b.closest('dialog'))));
+function scentOptions(sel){
+  return `<option value="">Без аромату</option>` + CONFIG.scents.groups.map((g) => `<optgroup label="${esc(g.name)}">${g.items.filter((i) => i.available !== false).map((i) => `<option value="${i.id}"${i.id === sel ? ' selected' : ''}>${esc(i.name)}</option>`).join('')}</optgroup>`).join('');
+}
+function openProduct(id){
+  const pr = productById(id); if (!pr) return; pdProduct = pr;
+  $('#h-product').textContent = pr.title; $('#pdCat').textContent = pr.cats.map((c) => SHOP_CAT[c]).join(' · ');
+  $('#pdDesc').textContent = pr.desc;
+  $('#pdMeta').textContent = `${CONFIG.product.name} · ${CONFIG.product.wax.toLowerCase()} · ${productGlass(pr).name.toLowerCase()} склянка ${CONFIG.product.containerMl} мл`;
+  $('#pdMedia').innerHTML = productMedia(pr, 900);
+  $('#pd-scent').innerHTML = scentOptions('');
+  $('#pdWick').innerHTML = CONFIG.wicks.map((w) => `<label><input type="radio" name="pd-wick" value="${w.id}"${w.id === CONFIG.defaultWickId ? ' checked' : ''}>${esc(w.name)}</label>`).join('');
+  $('#pd-qty').value = 1; renderPdPrice();
+  openDlg(pdDlg);
+  if (pr.tpl) spinProduct(); else cancelAnimationFrame(pdRaf);
+}
+function spinProduct(){
+  cancelAnimationFrame(pdRaf);
+  const cv = $('#pdMedia canvas'); if (!cv) return;
+  let phi = 0, last = 0;
+  const tick = (t) => {
+    if (!pdDlg.open) return;
+    pdRaf = requestAnimationFrame(tick);
+    if (t - last < 33) return;
+    const dt = last ? Math.min(100, t - last) : 0; last = t;
+    phi += (reduceMotion ? 0 : CONFIG.preview.degPerSec) * DEG * dt / 1000;
+    paintProduct(cv, pdProduct, phi);
+  };
+  paintProduct(cv, pdProduct, 0); pdRaf = requestAnimationFrame(tick);
+}
+pdDlg.addEventListener('close', () => cancelAnimationFrame(pdRaf));
+const pdQty = () => Math.max(1, Math.min(999, parseInt($('#pd-qty').value, 10) || 1));
+function shopQuote(totalQty){
+  const P = CONFIG.pricing; if (!P.enabled || !P.tiers.length) return null;
+  if (P.quoteFromQty && totalQty >= P.quoteFromQty) return { quoteOnly: true };
+  const t = tierFor(totalQty), i = P.tiers.indexOf(t), next = P.tiers[i + 1] || null;
+  return { unit: t.price, next };
+}
+function renderPdPrice(){
+  const inCart = cartQty(), q = pdQty(), Q = shopQuote(inCart + q);
+  let h = '';
+  if (!Q) h = '<b>Ціна за запитом</b>';
+  else if (Q.quoteOnly) h = `<span class="hint">Разом із кошиком ${inCart + q} шт</span><b>Індивідуальний розрахунок</b>`;
+  else h = `<span class="hint">${q} шт × ${money(Q.unit)}${inCart ? ` (з урахуванням ${inCart} шт у кошику)` : ''}</span><b>${money(Q.unit * q)}</b>${Q.next ? `<span class="hint">Від ${Q.next.min} шт у кошику — ${money(Q.next.price)} за свічку.</span>` : ''}`;
+  $('#pdPrice').innerHTML = h + (CONFIG.pricing.approved ? '' : `<span class="hint">${esc(CONFIG.pricing.note)}</span>`);
+}
+$('#pdForm').addEventListener('click', (e) => { const b = e.target.closest('[data-step]'); if (!b) return; $('#pd-qty').value = Math.max(1, pdQty() + Number(b.dataset.step)); renderPdPrice(); });
+$('#pd-qty').addEventListener('input', renderPdPrice);
+$('#pdForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const wick = ($('input[name="pd-wick"]:checked') || {}).value || CONFIG.defaultWickId;
+  addToCart(pdProduct.id, $('#pd-scent').value || null, wick, pdQty());
+  closeDlg(pdDlg);
+  toast(`«${pdProduct.title}» у кошику`, 'Відкрити кошик', openCart);
+});
+document.addEventListener('click', (e) => { const b = e.target.closest('[data-product]'); if (b) openProduct(b.dataset.product); });
+
+/* ---------- кошик (зберігається в цьому браузері) ---------- */
+let cart = [];
+try { cart = JSON.parse(localStorage.getItem('rdk-cart') || '[]').filter((i) => productById(i.id) && i.qty > 0); } catch (e){ cart = []; }
+const cartQty = () => cart.reduce((n, i) => n + i.qty, 0);
+function saveCart(){ try { localStorage.setItem('rdk-cart', JSON.stringify(cart)); } catch (e){} updateCartBadge(); }
+function updateCartBadge(){ const n = cartQty(), c = $('#cartCount'); c.textContent = n; c.hidden = !n; $('#cartBtn').setAttribute('aria-label', `Кошик, товарів: ${n}`); }
+function addToCart(id, scent, wick, qty){
+  const key = [id, scent || '', wick].join('|'), ex = cart.find((i) => i.key === key);
+  if (ex) ex.qty += qty; else cart.push({ key, id, scent, wick, qty });
+  saveCart();
+}
+const scentName = (id) => id ? (scentById(id) || {}).name || id : 'без аромату';
+const wickName = (id) => (wickById(id) || {}).name || id;
+function cartTotals(){ const n = cartQty(), Q = shopQuote(n); return { n, Q, total: Q && !Q.quoteOnly ? Q.unit * n : null }; }
+function renderCart(){
+  const body = $('#cartBody');
+  if (!cart.length){ body.innerHTML = `<p class="cart-empty">Кошик порожній. <a href="#katalog" data-close-cart>Перейти до каталогу</a></p>`; $('#checkoutForm').hidden = true; return; }
+  const { n, Q, total } = cartTotals();
+  body.innerHTML = `<ul class="cart-list">${cart.map((i) => { const pr = productById(i.id); return `<li class="cart-item" data-key="${esc(i.key)}">
+      <div class="thumb">${productMedia(pr, 160)}</div>
+      <div><b>${esc(pr.title)}</b><small>Аромат: ${esc(scentName(i.scent))} · ґніт: ${esc(wickName(i.wick).toLowerCase())}</small>
+        <div class="stepper" style="margin-top:8px"><button type="button" class="icon-btn" data-cart-step="-1" aria-label="Менше «${esc(pr.title)}»">−</button><input type="number" min="1" max="999" value="${i.qty}" aria-label="Кількість «${esc(pr.title)}»" data-cart-qty><button type="button" class="icon-btn" data-cart-step="1" aria-label="Більше «${esc(pr.title)}»">+</button></div></div>
+      <button type="button" class="icon-btn" data-cart-del aria-label="Видалити «${esc(pr.title)}»">${'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M9 7V5h6v2M7 7l1 13h8l1-13"/></svg>'}</button>
+    </li>`; }).join('')}</ul>
+    <div class="cart-tot">
+      <div><span>Свічок</span><span>${n} шт</span></div>
+      ${!Q ? '<div><span>Вартість</span><b>Ціна за запитом</b></div>' : Q.quoteOnly ? '<div><span>Вартість</span><b>Індивідуальний розрахунок</b></div>' : `<div><span>Ціна за свічку</span><span>${money(Q.unit)}</span></div><div><span>Разом</span><b class="sum">${money(total)}</b></div>${Q.next ? `<p class="hint">Ще ${Q.next.min - n} шт — і ціна ${money(Q.next.price)} за свічку.</p>` : ''}`}
+      ${CONFIG.pricing.approved ? '' : `<p class="hint">${esc(CONFIG.pricing.note)} Доставку й оплату погодимо під час підтвердження.</p>`}
+    </div>
+    ${$('#checkoutForm').hidden ? '<button type="button" class="btn btn-cta btn-lg" id="btnToCheckout" style="width:100%">Оформити замовлення</button>' : ''}`;
+  paintShop();
+}
+function openCart(){ renderCart(); $('#checkoutResult').innerHTML = ''; openDlg($('#cartDlg')); }
+$('#cartBtn').addEventListener('click', openCart);
+$('#cartBody').addEventListener('click', (e) => {
+  if (e.target.closest('[data-close-cart]')) closeDlg($('#cartDlg'));
+  if (e.target.closest('#btnToCheckout')){ $('#checkoutForm').hidden = false; renderCart(); setTimeout(() => $('#c-name').focus(), 30); return; }
+  const li = e.target.closest('.cart-item'); if (!li) return;
+  const it = cart.find((i) => i.key === li.dataset.key); if (!it) return;
+  const st = e.target.closest('[data-cart-step]');
+  if (st){ it.qty = Math.max(1, it.qty + Number(st.dataset.cartStep)); saveCart(); renderCart(); }
+  if (e.target.closest('[data-cart-del]')){ cart = cart.filter((i) => i !== it); saveCart(); renderCart(); }
+});
+$('#cartBody').addEventListener('change', (e) => {
+  const inp = e.target.closest('[data-cart-qty]'); if (!inp) return;
+  const it = cart.find((i) => i.key === inp.closest('.cart-item').dataset.key);
+  it.qty = Math.max(1, Math.min(999, parseInt(inp.value, 10) || 1)); saveCart(); renderCart();
+});
+$$('#checkoutForm input').forEach((i) => i.addEventListener('input', () => { if (i.getAttribute('aria-invalid') === 'true') fieldErr(i.id, ''); }));
+function shopText(p){
+  return [`Замовлення свічок з магазину`, `Ім’я: ${p.customer.name}`, `Телефон: ${p.customer.phone}`, p.customer.email ? `Email: ${p.customer.email}` : null,
+    `Доставка: ${p.delivery.city}${p.delivery.address ? ', ' + p.delivery.address : ''}`,
+    ...p.items.map((i, n) => `${n + 1}. ${i.title} — ${i.quantity} шт; аромат: ${i.scent ? i.scent.name : 'без аромату'}; ґніт: ${i.wick.name.toLowerCase()}`),
+    p.pricing.status === 'quote_requested' ? `Разом: ${p.quantity} шт — індивідуальний розрахунок` : `Разом: ${p.quantity} шт × ${p.pricing.unitPrice} = ${p.pricing.total} ${p.pricing.currency}${p.pricing.approved ? '' : ' (орієнтовно)'}`,
+    p.comment ? `Коментар: ${p.comment}` : null].filter(Boolean).join('\n');
+}
+let lastShopOrder = null;
+$('#checkoutForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const v = (id) => $('#c-' + id).value.trim();
+  const ok = [fieldErr('c-name', v('name').length < 2 ? 'Вкажи ім’я.' : ''), fieldErr('c-phone', !normPhone(v('phone')) ? 'Вкажи телефон у форматі +380 XX XXX XX XX.' : ''),
+    fieldErr('c-email', v('email') && !emailOk(v('email')) ? 'Перевір email — схоже, у ньому помилка.' : ''), fieldErr('c-city', v('city').length < 2 ? 'Вкажи місто доставки.' : ''),
+    fieldErr('c-consent', !$('#c-consent').checked ? 'Потрібна згода на обробку даних, щоб ми могли зв’язатися з тобою.' : '')].every(Boolean);
+  if (!ok){ const bad = $('#checkoutForm [aria-invalid="true"]'); if (bad) bad.focus(); return; }
+  if (!cart.length) return;
+  const { n, Q, total } = cartTotals(), now = new Date().toISOString();
+  const payload = { schema: 'rdk-candle/shop-order@1', kind: 'shop', createdAt: now,
+    customer: { name: v('name'), phone: normPhone(v('phone')), email: v('email') || null },
+    delivery: { city: v('city'), address: v('delivery') || null }, comment: v('comment') || null, consent: { personalData: true, at: now },
+    quantity: n,
+    items: cart.map((i) => { const pr = productById(i.id), w = wickById(i.wick), sc = i.scent ? scentById(i.scent) : null;
+      return { productId: pr.id, title: pr.title, quantity: i.qty, glass: { id: productGlass(pr).id, name: productGlass(pr).name }, scent: sc ? { id: sc.id, name: sc.name } : null, wick: { id: w.id, name: w.name }, design: pr.tpl ? { template: pr.tpl } : { photo: pr.photo } }; }),
+    product: { name: CONFIG.product.name, fillVolumeMl: CONFIG.product.fillMl, containerCapacityMl: CONFIG.product.containerMl, wax: CONFIG.product.wax },
+    pricing: !Q || Q.quoteOnly ? { status: 'quote_requested', quantity: n } : { unitPrice: Q.unit, quantity: n, total, currency: CONFIG.pricing.currency, approved: !!CONFIG.pricing.approved, note: CONFIG.pricing.approved ? null : CONFIG.pricing.note } };
+  lastShopOrder = payload;
+  const res = $('#checkoutResult'), btn = $('#btnCheckout');
+  if (CONFIG.order.endpoint){
+    btn.disabled = true; btn.textContent = 'Надсилаємо…';
+    try {
+      const data = await submitToEndpoint(payload, []);
+      cart = []; saveCart(); renderCart(); $('#checkoutForm').hidden = true;
+      $('#cartBody').innerHTML = `<div class="result ok"><h3>Замовлення надіслано</h3><p>Номер: <b>${esc(data.id || '—')}</b>. Ми зв’яжемося з вами, щоб підтвердити замовлення, доставку й оплату.</p></div>`;
+    } catch (err){
+      res.innerHTML = `<div class="result bad"><h3>Не вдалося надіслати замовлення</h3><p>${esc(err.message || 'Помилка мережі')}. Спробуйте ще раз або скопіюйте текст замовлення й передайте нам.</p><button type="button" class="btn btn-ghost btn-sm" data-copy-shop>Скопіювати текст замовлення</button></div>`;
+    } finally { btn.disabled = false; btn.textContent = 'Надіслати замовлення'; }
+  } else {
+    res.innerHTML = `<div class="result info"><h3>Замовлення ще не надіслано</h3><p>Онлайн-відправлення на сайті поки не підключене. Скопіюйте текст замовлення й передайте нам зручним способом — кошик збережеться в цьому браузері.</p>${contactsHtml()}<div class="row-btns"><button type="button" class="btn btn-primary btn-sm" data-copy-shop>Скопіювати текст замовлення</button></div></div>`;
+  }
+});
+$('#checkoutResult').addEventListener('click', async (e) => {
+  if (!e.target.closest('[data-copy-shop]') || !lastShopOrder) return;
+  try { await navigator.clipboard.writeText(shopText(lastShopOrder)); toast('Текст замовлення скопійовано'); }
+  catch (err){ toast('Не вдалося скопіювати — виділіть текст вручну'); }
+});
+
+/* ===================== Два розділи: магазин (головна) і B2B кастомізація =====================
+   Розділ визначається за адресою: #b2b або якір усередині B2B (#konstruktor, #tsiny…) відкриває B2B, решта — магазин. */
+let b2bShown = false, pendingDraftToast = null;
+function showView(v){
+  document.body.dataset.mode = v;
+  $$('[data-page]').forEach((x) => { x.hidden = x.dataset.page !== v; });
+  document.title = v === 'b2b' ? 'B2B кастомізація — RDK Candle' : 'RDK Candle — свічки з малюнком на склі';
+  if (v === 'b2b'){
+    if (!b2bShown){ b2bShown = true; if (pendingDraftToast){ const t = pendingDraftToast; pendingDraftToast = null; setTimeout(t, 400); } }
+    requestAnimationFrame(() => { repaintAll(); updateMbar(); });
+  }
+}
+function route(){
+  const h = decodeURIComponent(location.hash.slice(1));
+  const target = h ? document.getElementById(h) : null;
+  const view = h === 'b2b' ? 'b2b' : target && target.closest('[data-page]') ? target.closest('[data-page]').dataset.page : 'shop';
+  if (document.body.dataset.mode !== view) showView(view);
+  if (target && h !== 'b2b' && h !== 'top') requestAnimationFrame(() => target.scrollIntoView({ block: 'start' }));
+  else window.scrollTo(0, 0);
+}
+window.addEventListener('hashchange', route);
+document.addEventListener('click', (e) => { const a = e.target.closest('a[href^="#"]'); if (a && a.getAttribute('href') === location.hash) { e.preventDefault(); route(); } });
+
+function repaintAll(){ renderHero(); paintGallery(); paintTemplateChips(); paintShop(); requestRender(); if (selectedEl()) syncProps(); }
 function loadMockupPhotos(){
   const list = [CONFIG.mockup.photo, ...Object.values(CONFIG.mockup.photos || {})].filter(Boolean);
   list.forEach((ph) => {
@@ -2308,14 +2529,14 @@ function loadMockupPhotos(){
 }
 async function init(){
   staticTexts(); loadMockupPhotos();
-  renderTemplateChips(); renderGallery(); renderWorks(); renderCollections(); renderHero();
+  renderTemplateChips(); renderGallery(); renderWorks(); renderShop(); updateCartBadge(); renderHero(); route();
   goStep('color');
   const d = await loadDraft();
   let restored = false;
   if (d && d.els && d.els.length){
     const dropped = applyDesign(d); restored = true;
-    if (dropped) setTimeout(() => toast(`Чернетку відновлено, але ${dropped} зображень не збереглися в браузері`), 600);
-    else setTimeout(() => toast('Відновлено твою чернетку', 'Почати заново', () => { applyTemplate('f-wild'); }), 600);
+    const t = dropped ? () => toast(`Чернетку відновлено, але ${dropped} зображень не збереглися в браузері`) : () => toast('Відновлено твою чернетку', 'Почати заново', () => { applyTemplate('f-wild'); });
+    if (document.body.dataset.mode === 'b2b') setTimeout(t, 600); else pendingDraftToast = t;
   } else applyTemplate('f-wild', { silent: true });
   history = [snap()]; refreshAll(); $('#qty').value = state.qty;
   if (restored) setSaveState('Чернетку відновлено з цього пристрою');
