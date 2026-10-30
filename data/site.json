@@ -11,7 +11,7 @@
     },
     {
       "id": "love",
-      "name": "Кохання"
+      "name": "Botaniсal - природа в ароматах"
     }
   ],
   "workCategories": [
@@ -145,6 +145,17 @@
         "floral"
       ],
       "tpl": "f-bouquet"
+    },
+    {
+      "cats": [
+        "love"
+      ],
+      "glass": "clear",
+      "title": "Spiced Wood",
+      "desc": "Свічка з ботанічною ілюстрацією деревини, кориці та зеленого листя на прозорій склянці. Теплі природні відтінки підкреслюють пряний характер Spiced Wood.",
+      "image": "assets/img/uploads/product-mvv3s61r.webp",
+      "alt": "Spiced Wood",
+      "id": "spiced-wood"
     }
   ],
   "works": [
