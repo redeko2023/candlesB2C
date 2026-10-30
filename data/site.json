@@ -1,0 +1,433 @@
+{
+  "version": 1,
+  "products": [
+    {
+      "id": "gold",
+      "title": "Золоті трави",
+      "desc": "Тонкі золоті гілки трав по всьому колу склянки й маленька монограма.",
+      "cats": [
+        "floral"
+      ],
+      "image": "assets/img/site/gold.webp",
+      "glass": "clear",
+      "alt": "Свічка із золотими травами по колу склянки поруч із темною подарунковою коробкою"
+    },
+    {
+      "id": "kvitny",
+      "title": "Квітни",
+      "desc": "Рум’яні півонії та бордові квіти по колу й напис «Квітни».",
+      "cats": [
+        "floral",
+        "gift"
+      ],
+      "image": "assets/img/works/kvitny.webp",
+      "glass": "clear",
+      "alt": "Свічка з півоніями по всьому колу й написом «Квітни»"
+    },
+    {
+      "id": "mama",
+      "title": "Мамо, дякую за тепло",
+      "desc": "Польові квіти з боків і напис від руки — подарунок для мами.",
+      "cats": [
+        "gift"
+      ],
+      "image": "assets/img/works/mama.webp",
+      "glass": "clear",
+      "alt": "Свічка з написом «Мамо, дякую за тепло» і польовими квітами"
+    },
+    {
+      "id": "bestyear",
+      "title": "Твій найкращий рік",
+      "desc": "Квіткова рамка й привітання з днем народження.",
+      "cats": [
+        "gift"
+      ],
+      "image": "assets/img/works/bestyear.webp",
+      "glass": "clear",
+      "alt": "Свічка з написом «Твій найкращий рік. З днем народження» в квітковій рамці"
+    },
+    {
+      "id": "special",
+      "title": "Ти — особлива",
+      "desc": "Кілька теплих слів і маленьке серце.",
+      "cats": [
+        "gift",
+        "love"
+      ],
+      "image": "assets/img/site/gift.webp",
+      "glass": "clear",
+      "alt": "Свічка з написом «Ти — особлива» і сердечком поруч із подарунковою коробкою"
+    },
+    {
+      "id": "f-wild",
+      "title": "Польові квіти",
+      "desc": "Ромашки, бордові суцвіття й гіпсофіла з обох боків склянки.",
+      "cats": [
+        "floral"
+      ],
+      "tpl": "f-wild"
+    },
+    {
+      "id": "f-peony",
+      "title": "Півонії й троянди",
+      "desc": "Рум’яні півонії та бордові троянди по всьому колу.",
+      "cats": [
+        "floral",
+        "love"
+      ],
+      "tpl": "f-peony"
+    },
+    {
+      "id": "f-frame",
+      "title": "Квіткова рамка",
+      "desc": "Тонкі гілки з бордовими й рум’яними квітами.",
+      "cats": [
+        "floral",
+        "love"
+      ],
+      "tpl": "f-frame"
+    },
+    {
+      "id": "f-wreath",
+      "title": "Квітковий вінок",
+      "desc": "Вінок із зелені, білих квітів і бутонів.",
+      "cats": [
+        "floral"
+      ],
+      "tpl": "f-wreath"
+    },
+    {
+      "id": "f-meadow",
+      "title": "Луговий бордюр",
+      "desc": "Ромашки й гіпсофіла по низу склянки.",
+      "cats": [
+        "floral"
+      ],
+      "tpl": "f-meadow"
+    },
+    {
+      "id": "f-bouquet",
+      "title": "Букет по колу",
+      "desc": "Польові букети навколо білої склянки.",
+      "cats": [
+        "floral"
+      ],
+      "tpl": "f-bouquet"
+    }
+  ],
+  "works": [
+    {
+      "id": "mama",
+      "title": "Мамо, дякую за тепло",
+      "note": "Польові квіти по колу й напис від руки",
+      "cat": "gift",
+      "glass": "clear",
+      "image": "assets/img/works/mama.webp",
+      "alt": "Свічка з написом «Мамо, дякую за тепло» і польовими квітами по колу на камені поруч із квітами",
+      "tpl": "mama"
+    },
+    {
+      "id": "bestyear",
+      "title": "Твій найкращий рік",
+      "note": "Привітання з днем народження в квітковій рамці",
+      "cat": "gift",
+      "glass": "clear",
+      "image": "assets/img/works/bestyear.webp",
+      "alt": "Свічка з написом «Твій найкращий рік. З днем народження» в квітковій рамці поруч із подарунком",
+      "tpl": "bestyear"
+    },
+    {
+      "id": "kvitny",
+      "title": "Квітни",
+      "note": "Півонії по всьому колу й золотий напис",
+      "cat": "gift",
+      "glass": "clear",
+      "image": "assets/img/works/kvitny.webp",
+      "alt": "Свічка з півоніями по всьому колу й написом «Квітни»",
+      "tpl": "kvitny"
+    },
+    {
+      "id": "gift",
+      "title": "Ти — особлива",
+      "note": "Кілька теплих слів і сердечко від руки",
+      "cat": "gift",
+      "glass": "clear",
+      "image": "assets/img/site/gift.webp",
+      "alt": "Свічка з написом «Ти — особлива» і сердечком поруч із подарунковою коробкою та стрічкою",
+      "tpl": "special"
+    },
+    {
+      "id": "anna",
+      "title": "Анна & Максим",
+      "note": "Весільний вінок, імена й дата",
+      "cat": "wedding",
+      "glass": "clear",
+      "image": "assets/img/works/anna.webp",
+      "alt": "Весільна свічка з вінком і написом «Анна & Максим, 24.10.2026»",
+      "tpl": "anna"
+    },
+    {
+      "id": "together",
+      "title": "Разом — назавжди",
+      "note": "Лінійний малюнок і ваша річниця",
+      "cat": "love",
+      "glass": "clear",
+      "image": "assets/img/works/together.webp",
+      "alt": "Свічка з малюнком рук і написом «Разом — назавжди. 5 років кохання»",
+      "tpl": "together"
+    },
+    {
+      "id": "onlyus",
+      "title": "Тільки ми",
+      "note": "Тонкі лінії на рубіновому склі",
+      "cat": "love",
+      "glass": "custom",
+      "image": "assets/img/works/onlyus.webp",
+      "alt": "Запалена свічка в рубіновій склянці з лінійним малюнком і написом «Тільки ми»",
+      "tpl": "onlyus",
+      "customDesc": "Рубінове скло, як у прикладі «Тільки ми»",
+      "customHex": "#5C1320"
+    },
+    {
+      "id": "quote",
+      "title": "Дедлайни зачекають",
+      "note": "Фраза для себе, для робочого столу чи тихого вечора",
+      "cat": "gift",
+      "glass": "clear",
+      "image": "assets/img/site/quote.webp",
+      "alt": "Запалена свічка з написом «Горить свічка. Дедлайни зачекають.» на столі з блокнотом і лавандою",
+      "tpl": "deadline"
+    },
+    {
+      "id": "nova",
+      "title": "NOVA Partners",
+      "note": "Логотип і подяка партнерам",
+      "cat": "biz",
+      "glass": "custom",
+      "image": "assets/img/works/nova.webp",
+      "alt": "Свічка в димчастій склянці з логотипом NOVA Partners і написом «Дякуємо за партнерство» поруч із подарунковою коробкою",
+      "tpl": "nova",
+      "customDesc": "Димчасте скло, як у прикладі «NOVA Partners»",
+      "customHex": "#4E4A46"
+    },
+    {
+      "id": "forma",
+      "title": "FORMA",
+      "note": "Геометричний орнамент і слоган бренду",
+      "cat": "biz",
+      "glass": "clear",
+      "image": "assets/img/works/forma.webp",
+      "alt": "Свічка з геометричним орнаментом і написом «FORMA. Разом створюємо більше» поруч із брендованою коробкою",
+      "tpl": "forma"
+    }
+  ],
+  "photos": {
+    "shopHero": "assets/img/site/gold.webp",
+    "b2bHero": "assets/img/works/forma.webp",
+    "teaser": "assets/img/works/nova.webp",
+    "business": "assets/img/site/team.webp"
+  },
+  "pricing": {
+    "tiers": [
+      {
+        "min": 1,
+        "price": 800
+      },
+      {
+        "min": 2,
+        "price": 500
+      },
+      {
+        "min": 10,
+        "price": 300
+      }
+    ],
+    "quoteFromQty": 100,
+    "approved": false,
+    "note": "Орієнтовна ціна. Остаточну вартість підтвердимо після погодження макета."
+  },
+  "scents": {
+    "groups": [
+      {
+        "id": "fruit",
+        "name": "Фруктові та ягідні",
+        "items": [
+          {
+            "id": "cherry",
+            "name": "Вишня",
+            "desc": "Соковитий ягідний, трохи терпкий",
+            "available": true
+          },
+          {
+            "id": "strawberry",
+            "name": "Полуниця",
+            "desc": "Солодкий і свіжий ягідний",
+            "available": true
+          },
+          {
+            "id": "blueberry",
+            "name": "Чорниця",
+            "desc": "М’який ягідний із прохолодною ноткою",
+            "available": true
+          },
+          {
+            "id": "mango",
+            "name": "Манго",
+            "desc": "Стиглий, солодкий тропічний",
+            "available": true
+          },
+          {
+            "id": "tropical",
+            "name": "Тропічні фрукти",
+            "desc": "Яскравий мікс екзотичних фруктів",
+            "available": true
+          },
+          {
+            "id": "fruits",
+            "name": "Фрукти",
+            "desc": "Легкий фруктовий мікс",
+            "available": true
+          },
+          {
+            "id": "prosecco",
+            "name": "Просекко",
+            "desc": "Ігристий, свіжий, фруктовий",
+            "available": true
+          }
+        ]
+      },
+      {
+        "id": "citrus",
+        "name": "Цитрусові та пряні",
+        "items": [
+          {
+            "id": "grapefruit",
+            "name": "Грейпфрут",
+            "desc": "Свіжий цитрус із легкою гірчинкою",
+            "available": true
+          },
+          {
+            "id": "lavender-lemon",
+            "name": "Лаванда-Лимон",
+            "desc": "Трав’яна лаванда з бадьорим лимоном",
+            "available": true
+          },
+          {
+            "id": "coriander",
+            "name": "Коріандр",
+            "desc": "Пряний, трав’яний, теплий",
+            "available": true
+          }
+        ]
+      },
+      {
+        "id": "floral",
+        "name": "Квіткові та зелені",
+        "items": [
+          {
+            "id": "rose",
+            "name": "Троянда",
+            "desc": "Класичний квітковий",
+            "available": true
+          },
+          {
+            "id": "violet",
+            "name": "Фіалка",
+            "desc": "Ніжний, пудровий квітковий",
+            "available": true
+          },
+          {
+            "id": "strelitzia",
+            "name": "Стреліція",
+            "desc": "Яскравий екзотичний квітковий",
+            "available": true
+          },
+          {
+            "id": "monstera",
+            "name": "Монстера",
+            "desc": "Зелений, свіжий, листяний",
+            "available": true
+          }
+        ]
+      },
+      {
+        "id": "fresh",
+        "name": "Свіжі та чисті",
+        "items": [
+          {
+            "id": "cotton",
+            "name": "Бавовна",
+            "desc": "Чистий і м’який, як свіжа білизна",
+            "available": true
+          },
+          {
+            "id": "sea-breeze",
+            "name": "Морський бриз",
+            "desc": "Прохолодний, свіжий, морський",
+            "available": true
+          },
+          {
+            "id": "spa",
+            "name": "Спа",
+            "desc": "Спокійний, чистий, розслабляючий",
+            "available": true
+          }
+        ]
+      },
+      {
+        "id": "gourmand",
+        "name": "Теплі та гурманські",
+        "items": [
+          {
+            "id": "tobacco-vanilla",
+            "name": "Табак-Ваніль",
+            "desc": "Глибокий тютюн і тепла ваніль",
+            "available": true
+          },
+          {
+            "id": "sandal-vanilla",
+            "name": "Сандал-Ваніль",
+            "desc": "Кремовий деревний із ваніллю",
+            "available": true
+          },
+          {
+            "id": "coconut",
+            "name": "Кокос",
+            "desc": "Солодкий, кремовий, тропічний",
+            "available": true
+          },
+          {
+            "id": "blackberry-pie",
+            "name": "Ожиновий пиріг",
+            "desc": "Ягоди й тепла випічка",
+            "available": true
+          }
+        ]
+      }
+    ]
+  },
+  "contacts": {
+    "phone": null,
+    "email": null,
+    "instagram": null
+  },
+  "showDemoNotice": true,
+  "texts": {
+    "shopHero": {
+      "kicker": "Соєві свічки 200 мл з малюнком на склі",
+      "title": "Свічки, які хочеться дарувати",
+      "lead": "Квіткові дизайни й теплі слова на склі. Оберіть свічку, аромат і ґніт — ми підготуємо ваше замовлення.",
+      "photoTitle": "Золоті трави",
+      "photoText": "Тонкі золоті гілки по колу склянки.",
+      "photoProduct": "gold"
+    },
+    "b2bHero": {
+      "kicker": "B2B кастомізація",
+      "title": "Свічки з вашим дизайном і логотипом",
+      "lead": "Для компаній, весіль і подій. Оберіть колір склянки й аромат, додайте логотип, напис або зображення в конструкторі — ми погодимо макет і виготовимо партію.",
+      "photoTitle": "Брендована колекція",
+      "photoText": "Логотип, орнамент і слоган на кожній свічці.",
+      "photoTemplate": "forma"
+    }
+  }
+}

@@ -48,9 +48,9 @@
   <section class="hero" aria-labelledby="h-shop">
     <div class="wrap hero-grid">
       <div class="hero-copy">
-        <p class="hero-kicker">Соєві свічки 200 мл з малюнком на склі</p>
+        <p class="hero-kicker" id="shopKicker">Соєві свічки 200 мл з малюнком на склі</p>
         <h1 id="h-shop">Свічки, які хочеться дарувати</h1>
-        <p class="hero-lead">Квіткові дизайни й теплі слова на склі. Оберіть свічку, аромат і ґніт — ми підготуємо ваше замовлення.</p>
+        <p class="hero-lead" id="shopLead">Квіткові дизайни й теплі слова на склі. Оберіть свічку, аромат і ґніт — ми підготуємо ваше замовлення.</p>
         <div class="hero-cta">
           <a class="btn btn-cta btn-lg" href="#katalog">Обрати свічку</a>
           <a class="btn btn-ghost btn-lg" href="#b2b">Свічка з вашим дизайном</a>
@@ -58,8 +58,8 @@
         <ul class="hero-facts" id="shopFacts"></ul>
       </div>
       <figure class="hero-photo">
-        <img data-photo="gold" src="assets/img/site/gold.webp" width="1100" height="1100" alt="Свічка в прозорій склянці із золотим ботанічним орнаментом по колу й монограмою, поруч темна подарункова коробка">
-        <figcaption><b>Золоті трави</b>Тонкі золоті гілки по колу склянки. <button type="button" class="link-btn" data-product="gold">Переглянути свічку</button></figcaption>
+        <img id="shopHeroImg" data-photo="gold" src="assets/img/site/gold.webp" width="1100" height="1100" alt="Свічка в прозорій склянці із золотим ботанічним орнаментом по колу й монограмою, поруч темна подарункова коробка">
+        <figcaption><b id="shopPhotoTitle">Золоті трави</b><span id="shopPhotoText">Тонкі золоті гілки по колу склянки.</span> <button type="button" class="link-btn" data-product="gold" id="shopPhotoBtn">Переглянути свічку</button></figcaption>
       </figure>
     </div>
   </section>
@@ -96,7 +96,7 @@
           <a class="btn btn-ghost-light btn-lg" href="#konstruktor" data-go-studio>Відкрити конструктор</a>
         </div>
       </div>
-      <figure class="biz-photo"><img data-coll-photo="nova" width="720" height="720" alt="Свічка з логотипом компанії поруч із подарунковою коробкою"></figure>
+      <figure class="biz-photo"><img id="teaserImg" data-coll-photo="nova" width="720" height="720" alt="Свічка з логотипом компанії поруч із подарунковою коробкою"></figure>
     </div>
   </section>
 
@@ -120,9 +120,9 @@
   <section class="hero" aria-labelledby="h-hero">
     <div class="wrap hero-grid">
       <div class="hero-copy">
-        <p class="hero-kicker">B2B кастомізація</p>
+        <p class="hero-kicker" id="b2bKicker">B2B кастомізація</p>
         <h1 id="h-hero">Свічки з вашим дизайном і логотипом</h1>
-        <p class="hero-lead">Для компаній, весіль і подій. Оберіть колір склянки й аромат, додайте логотип, напис або зображення в конструкторі — ми погодимо макет і виготовимо партію.</p>
+        <p class="hero-lead" id="b2bLead">Для компаній, весіль і подій. Оберіть колір склянки й аромат, додайте логотип, напис або зображення в конструкторі — ми погодимо макет і виготовимо партію.</p>
         <div class="hero-cta">
           <a class="btn btn-cta btn-lg" href="#konstruktor" data-go-studio>Відкрити конструктор</a>
           <button type="button" class="btn btn-ghost btn-lg" data-batch>Обговорити партію</button>
@@ -130,8 +130,8 @@
         <ul class="hero-facts" id="heroFacts"></ul>
       </div>
       <figure class="hero-photo">
-        <img data-coll-photo="forma" width="720" height="720" alt="Свічка з геометричним орнаментом і назвою бренду поруч із брендованою коробкою">
-        <figcaption><b>Брендована колекція</b>Логотип, орнамент і слоган на кожній свічці. <button type="button" class="link-btn" data-use="forma">Створити схожу свічку</button></figcaption>
+        <img id="b2bHeroImg" data-coll-photo="forma" width="720" height="720" alt="Свічка з геометричним орнаментом і назвою бренду поруч із брендованою коробкою">
+        <figcaption><b id="b2bPhotoTitle">Брендована колекція</b><span id="b2bPhotoText">Логотип, орнамент і слоган на кожній свічці.</span> <button type="button" class="link-btn" data-use="forma" id="b2bPhotoBtn">Створити схожу свічку</button></figcaption>
       </figure>
     </div>
   </section>
@@ -353,7 +353,7 @@
         </ul>
         <button type="button" class="btn btn-light btn-lg" id="btnBatch">Замовити партію</button>
       </div>
-      <figure class="biz-photo"><img data-photo="team" src="assets/img/site/team.webp" width="1100" height="1100" alt="Свічки в прозорих склянках з логотипом RDK і темно-зеленим ботанічним орнаментом, позаду брендовані коробки"></figure>
+      <figure class="biz-photo"><img id="bizImg" data-photo="team" src="assets/img/site/team.webp" width="1100" height="1100" alt="Свічки в прозорих склянках з логотипом RDK і темно-зеленим ботанічним орнаментом, позаду брендовані коробки"></figure>
     </div>
   </section>
 

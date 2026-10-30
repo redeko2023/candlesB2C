@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Адмін-панель — RDK Candle</title>
+<link rel="icon" href="assets/img/site/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:wght@500&family=Manrope:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/css/admin.css">
+</head>
+<body>
+<header class="bar">
+  <div class="wrap bar-in">
+    <a class="brand" href="./" target="_blank" rel="noopener"><b>RDK</b> candle <span>адмін-панель</span></a>
+    <div class="bar-actions" id="barActions" hidden>
+      <span class="who" id="who"></span>
+      <a class="btn btn-ghost btn-sm" href="./" target="_blank" rel="noopener">Відкрити сайт</a>
+      <button type="button" class="btn btn-ghost btn-sm" id="btnLogout">Вийти</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- ВХІД -->
+  <section class="card login" id="loginView" aria-labelledby="h-login">
+    <h1 id="h-login">Вхід до адмін-панелі</h1>
+    <p class="muted">Зміни зберігаються прямо в репозиторій сайту на GitHub. Сайт оновлюється приблизно за 1–2 хвилини після публікації.</p>
+    <form id="loginForm" novalidate>
+      <div class="field"><label for="l-repo">Репозиторій</label><input id="l-repo" autocomplete="off" spellcheck="false" placeholder="акаунт/назва"><p class="hint">Наприклад, <code>redeko2023/candlesB2C</code></p></div>
+      <div class="field"><label for="l-branch">Гілка</label><input id="l-branch" autocomplete="off" spellcheck="false" value="main"></div>
+      <div class="field"><label for="l-token">GitHub-токен</label><input id="l-token" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_…"></div>
+      <label class="check"><input type="checkbox" id="l-remember"> Запам’ятати на цьому пристрої</label>
+      <p class="err" id="loginErr" role="alert"></p>
+      <button type="submit" class="btn btn-cta" id="btnLogin">Увійти</button>
+    </form>
+    <details class="help">
+      <summary>Як отримати токен</summary>
+      <ol>
+        <li>На GitHub відкрийте <b>Settings → Developer settings → Personal access tokens → Fine-grained tokens</b> і натисніть <b>Generate new token</b>.</li>
+        <li>Назва — наприклад, «Адмінка свічок». Термін дії — на ваш розсуд (наприклад, 1 рік).</li>
+        <li><b>Repository access</b> → <b>Only select repositories</b> → оберіть репозиторій сайту.</li>
+        <li><b>Permissions → Repository permissions → Contents</b> → <b>Read and write</b>. Інші дозволи не потрібні.</li>
+        <li>Натисніть <b>Generate token</b>, скопіюйте токен і вставте його сюди.</li>
+      </ol>
+      <p class="muted">Токен дає право змінювати лише цей репозиторій. Не пересилайте його іншим. Якщо токен потрапив до сторонніх, видаліть його на GitHub і створіть новий.</p>
+    </details>
+  </section>
+
+  <!-- РЕДАКТОР -->
+  <section id="appView" hidden>
+    <div class="tabs" role="tablist" aria-label="Розділи адмін-панелі">
+      <button type="button" role="tab" id="tab-products" aria-controls="pane-products" aria-selected="true">Товари</button>
+      <button type="button" role="tab" id="tab-works" aria-controls="pane-works" aria-selected="false" tabindex="-1">Приклади робіт</button>
+      <button type="button" role="tab" id="tab-photos" aria-controls="pane-photos" aria-selected="false" tabindex="-1">Фото сайту</button>
+      <button type="button" role="tab" id="tab-prices" aria-controls="pane-prices" aria-selected="false" tabindex="-1">Ціни</button>
+      <button type="button" role="tab" id="tab-scents" aria-controls="pane-scents" aria-selected="false" tabindex="-1">Аромати</button>
+      <button type="button" role="tab" id="tab-texts" aria-controls="pane-texts" aria-selected="false" tabindex="-1">Контакти й тексти</button>
+    </div>
+    <div class="pane" role="tabpanel" id="pane-products" aria-labelledby="tab-products"></div>
+    <div class="pane" role="tabpanel" id="pane-works" aria-labelledby="tab-works" hidden></div>
+    <div class="pane" role="tabpanel" id="pane-photos" aria-labelledby="tab-photos" hidden></div>
+    <div class="pane" role="tabpanel" id="pane-prices" aria-labelledby="tab-prices" hidden></div>
+    <div class="pane" role="tabpanel" id="pane-scents" aria-labelledby="tab-scents" hidden></div>
+    <div class="pane" role="tabpanel" id="pane-texts" aria-labelledby="tab-texts" hidden></div>
+  </section>
+</main>
+
+<div class="publish" id="publishBar" hidden>
+  <div class="wrap publish-in">
+    <p id="dirtyText" aria-live="polite">Змін немає</p>
+    <div class="publish-btns">
+      <button type="button" class="btn btn-ghost" id="btnDiscard" disabled>Скасувати зміни</button>
+      <button type="button" class="btn btn-cta" id="btnPublish" disabled>Опублікувати на сайті</button>
+    </div>
+  </div>
+</div>
+
+<dialog id="editDlg" aria-labelledby="h-edit">
+  <form id="editForm" class="dlg" novalidate>
+    <div class="dlg-head"><h2 id="h-edit"></h2><button type="button" class="icon-btn" data-close aria-label="Закрити">✕</button></div>
+    <div id="editBody"></div>
+    <p class="err" id="editErr" role="alert"></p>
+    <div class="dlg-foot"><button type="button" class="btn btn-ghost" data-close>Скасувати</button><button type="submit" class="btn btn-cta">Зберегти</button></div>
+  </form>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="assets/js/admin.js"></script>
+</body>
+</html>

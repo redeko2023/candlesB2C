@@ -1013,7 +1013,9 @@ function sizeCanvas(c){
 function paintCandle(ctx, W, H, col, els, o = {}){
   const g = candleGeom(W, H, o.geom || {});
   const k = Math.min(18, g.s * 1.3);
-  const fl = (els && els.length) || o.bg ? flatCanvas(els || [], k, null, o.bg) : null;
+  /* o.flatCache — кеш розгортки дизайну для повторних рендерів (картки товарів, обертання) */
+  const fc = o.flatCache, fl = fc && fc.k === k && fc.c ? fc.c : (els && els.length) || o.bg ? flatCanvas(els || [], k, null, o.bg) : null;
+  if (fc && fc.k !== k){ fc.k = k; fc.c = fl; }
   drawCandle(ctx, g, { hex: col.hex, clear: col.clear, finish: col.finish, photo: photoFor(col), flat: fl, k, lit: o.lit, noFlame: o.noFlame, t: o.t, showZone: o.showZone, px: o.px, wick: o.wick });
   return g;
 }
@@ -1838,7 +1840,7 @@ function paintGallery(){}
 /* ===================== Приклади робіт (фото) ===================== */
 /* photo — ключ у window.COLLECTION_PHOTOS; tpl — шаблон конструктора, близький до фото;
    glass: 'clear' | 'custom' (customHex/customDesc — колір склянки під замовлення). */
-const WORKS = [
+let WORKS = [
   { id: 'mama', cat: 'gift', title: 'Мамо, дякую за тепло', glass: 'clear', note: 'Польові квіти по колу й напис від руки', tpl: 'mama', alt: 'Свічка з написом «Мамо, дякую за тепло» і польовими квітами по колу на камені поруч із квітами' },
   { id: 'bestyear', cat: 'gift', title: 'Твій найкращий рік', glass: 'clear', note: 'Привітання з днем народження в квітковій рамці', tpl: 'bestyear', alt: 'Свічка з написом «Твій найкращий рік. З днем народження» в квітковій рамці поруч із подарунком' },
   { id: 'kvitny', cat: 'gift', title: 'Квітни', glass: 'clear', note: 'Півонії по всьому колу й золотий напис', tpl: 'kvitny', alt: 'Свічка з півоніями по всьому колу й написом «Квітни»' },
@@ -1851,15 +1853,16 @@ const WORKS = [
   { id: 'forma', cat: 'biz', title: 'FORMA', glass: 'clear', note: 'Геометричний орнамент і слоган бренду', tpl: 'forma', alt: 'Свічка з геометричним орнаментом і написом «FORMA. Разом створюємо більше» поруч із брендованою коробкою' }
 ];
 const WORK_CAT = { gift: 'Подарунок', love: 'Кохання', wedding: 'Весілля', biz: 'Для бізнесу' };
-const workPhoto = (w) => w.photo ? (window.SITE_PHOTOS[w.photo] || document.querySelector(`img[data-photo="${w.photo}"]`).src) : window.COLLECTION_PHOTOS[w.id];
+const workPhoto = (w) => w.image || (w.photo ? ((window.SITE_PHOTOS || {})[w.photo] || document.querySelector(`img[data-photo="${w.photo}"]`)?.src || '') : (window.COLLECTION_PHOTOS || {})[w.id] || '');
+const workGlassText = (w) => w.glass === 'custom' ? 'Колір склянки під замовлення.' : `${colorById(w.glass || 'clear').name} склянка.`;
 function renderWorks(){
-  $('#works').innerHTML = WORKS.map((w) => `<figure class="coll" data-work="${w.id}" data-cat="${w.cat}">
+  $('#works').innerHTML = WORKS.filter((w) => !w.hidden).map((w) => `<figure class="coll" data-work="${w.id}" data-cat="${w.cat}">
       <div class="ph"><img src="${workPhoto(w)}" width="720" height="720" alt="${esc(w.alt)}"></div>
       <figcaption style="display:grid;gap:6px">
-        <span class="tag">${esc(WORK_CAT[w.cat])}</span>
+        <span class="tag">${esc(WORK_CAT[w.cat] || '')}</span>
         <h3>${esc(w.title)}</h3>
-        <p class="meta">${esc(w.note)}. ${w.glass === 'custom' ? 'Колір склянки під замовлення.' : 'Прозора склянка.'}</p>
-        <div class="row-btns"><button type="button" class="btn btn-ghost btn-sm" data-work-use="${w.id}">Створити на основі цього дизайну</button></div>
+        <p class="meta">${esc(String(w.note || '').replace(/\.$/, ''))}. ${workGlassText(w)}</p>
+        <div class="row-btns">${w.tpl && TEMPLATES.some((t) => t.id === w.tpl) ? `<button type="button" class="btn btn-ghost btn-sm" data-work-use="${w.id}">Створити на основі цього дизайну</button>` : `<button type="button" class="btn btn-ghost btn-sm" data-batch>Обговорити такий дизайн</button>`}</div>
       </figcaption></figure>`).join('');
 }
 $('#worksFilter').addEventListener('click', (e) => {
@@ -1870,8 +1873,8 @@ $('#worksFilter').addEventListener('click', (e) => {
 function openInStudio(msg){ refreshAll(); commit(); goStep('design'); $('#konstruktor').scrollIntoView({ block: 'start' }); toast(msg); }
 function applyWork(w){
   applyTemplate(w.tpl, { silent: true });
-  if (w.glass === 'custom'){ state.custom = { desc: w.customDesc, code: '', hex: w.customHex }; state.colorId = 'custom'; }
-  else state.colorId = w.glass;
+  if (w.glass === 'custom'){ state.custom = { desc: w.customDesc || '', code: '', hex: w.customHex || CONFIG.customColor.defaultPreviewHex }; state.colorId = 'custom'; }
+  else if (colorById(w.glass)) state.colorId = w.glass;
   openInStudio(`Дизайн «${w.title}» відкрито в конструкторі. Зміни напис чи кольори під себе.`);
 }
 $('#works').addEventListener('click', (e) => {
@@ -2274,7 +2277,7 @@ function fontsReady(){
    tpl — квітковий дизайн, який малюється на мокапі склянки (той самий, що в конструкторі).
    Ціна за свічку береться з CONFIG.pricing і залежить від загальної кількості в кошику (CONFIG.shop.tierByCartQty). */
 const SHOP_CAT = { floral: 'Квіткові', gift: 'Подарунки', love: 'Кохання' };
-const PRODUCTS = [
+let PRODUCTS = [
   { id: 'gold', photo: 'gold', cats: ['floral'], title: 'Золоті трави', desc: 'Тонкі золоті гілки трав по всьому колу склянки й маленька монограма.', glass: 'clear', alt: 'Свічка із золотими травами по колу склянки поруч із темною подарунковою коробкою' },
   { id: 'kvitny', photo: 'kvitny', cats: ['floral', 'gift'], title: 'Квітни', desc: 'Рум’яні півонії та бордові квіти по колу й напис «Квітни».', glass: 'clear', alt: 'Свічка з півоніями по всьому колу й написом «Квітни»' },
   { id: 'mama', photo: 'mama', cats: ['gift'], title: 'Мамо, дякую за тепло', desc: 'Польові квіти з боків і напис від руки — подарунок для мами.', glass: 'clear', alt: 'Свічка з написом «Мамо, дякую за тепло» і польовими квітами' },
@@ -2289,17 +2292,33 @@ const PRODUCTS = [
 ];
 const productById = (id) => PRODUCTS.find((x) => x.id === id);
 const productTpl = (pr) => pr.tpl ? TEMPLATES.find((t) => t.id === pr.tpl) : null;
-const productGlass = (pr) => colorById(pr.tpl ? productTpl(pr).colorId : pr.glass);
+const productGlass = (pr) => colorById(pr.tpl ? productTpl(pr).colorId : pr.glass) || colorById('clear');
+const shopProducts = () => PRODUCTS.filter((x) => !x.hidden);
 function productSrc(pr){
   if (pr.tpl) return null;
+  if (pr.image) return pr.image;
   return (window.SITE_PHOTOS || {})[pr.photo] || (window.COLLECTION_PHOTOS || {})[pr.photo] || document.querySelector(`img[data-photo="${pr.photo}"]`)?.src || '';
 }
-const tplEls = {};   // кеш елементів квіткових дизайнів (координати однакові для всіх рендерів)
+const tplEls = {}, tplFlat = {};   // кеш елементів і розгортки квіткових дизайнів
 function paintProduct(cv, pr, phi = 0){
   const t = productTpl(pr); if (!t) return;
   if (!tplEls[pr.id]) tplEls[pr.id] = templateEls(t);
+  const key = pr.id + '@' + cv.width; if (!tplFlat[key]) tplFlat[key] = {};
   const ctx = cv.getContext('2d'); ctx.clearRect(0, 0, cv.width, cv.height);
-  paintCandle(ctx, cv.width, cv.height, colorById(t.colorId), tplEls[pr.id], { geom: { fitW: 0.9, fitH: 0.9, headMm: 6, phi } });
+  paintCandle(ctx, cv.width, cv.height, colorById(t.colorId), tplEls[pr.id], { geom: { fitW: 0.9, fitH: 0.9, headMm: 6, phi }, flatCache: tplFlat[key] });
+}
+/* Картки малюються поступово (кілька за кадр) і лише ті, що поруч з екраном, — сторінка не «підвисає». */
+const paintQueue = new Set(); let paintRaf = 0;
+const paintIO = 'IntersectionObserver' in window ? new IntersectionObserver((en) => en.forEach((x) => { x.target._vis = x.isIntersecting; if (x.isIntersecting && x.target._dirty) queuePaint(x.target); }), { rootMargin: '400px' }) : null;
+function queuePaint(cv){ paintQueue.add(cv); if (!paintRaf) paintRaf = requestAnimationFrame(drainPaint); }
+function drainPaint(){
+  paintRaf = 0; const t0 = performance.now();
+  for (const cv of paintQueue){
+    paintQueue.delete(cv); if (!cv.isConnected) continue;
+    const pr = productById(cv.dataset.paint); if (pr) paintProduct(cv, pr); cv._dirty = false;
+    if (performance.now() - t0 > 24) break;
+  }
+  if (paintQueue.size) paintRaf = requestAnimationFrame(drainPaint);
 }
 function productMedia(pr, size = 720, cls = ''){
   return pr.tpl ? `<canvas width="${size}" height="${size}" data-paint="${pr.id}" role="img" aria-label="${esc('Свічка «' + pr.title + '»: ' + pr.desc)}"></canvas>`
@@ -2308,10 +2327,10 @@ function productMedia(pr, size = 720, cls = ''){
 const basePrice = () => { const P = CONFIG.pricing; return P.enabled && P.tiers.length ? P.tiers[0].price : null; };
 function renderShop(){
   const bp = basePrice(), P = CONFIG.pricing;
-  $('#shopGrid').innerHTML = PRODUCTS.map((pr) => `<figure class="coll" data-product-card="${pr.id}" data-cats="${pr.cats.join(' ')}">
+  $('#shopGrid').innerHTML = shopProducts().map((pr) => `<figure class="coll" data-product-card="${pr.id}" data-cats="${(pr.cats || []).join(' ')}">
       <button type="button" class="ph${pr.tpl ? ' mock' : ''}" data-product="${pr.id}" aria-label="Переглянути свічку «${esc(pr.title)}»">${productMedia(pr)}</button>
       <figcaption style="display:grid;gap:6px">
-        <span class="tag">${pr.cats.map((c) => SHOP_CAT[c]).join(' · ')}</span>
+        <span class="tag">${(pr.cats || []).map((c) => SHOP_CAT[c]).filter(Boolean).join(' · ')}</span>
         <h3>${esc(pr.title)}</h3>
         <p class="meta">${esc(pr.desc)} ${esc(productGlass(pr).name)} склянка.</p>
         <p class="price">${bp ? money(bp) : 'Ціна за запитом'}${bp && !P.approved ? ' <span class="hint" style="font-weight:500">орієнтовно</span>' : ''}</p>
@@ -2325,9 +2344,17 @@ function renderShop(){
   $('#aromaList').innerHTML = CONFIG.scents.groups.map((g) => `<div><h3>${esc(g.name)}</h3><ul>${g.items.filter((i) => i.available !== false).map((i) => `<li><b>${esc(i.name)}</b>${i.desc ? ' — ' + esc(i.desc.toLowerCase()) : ''}</li>`).join('')}</ul></div>`).join('');
   const PR = CONFIG.product;
   $('#shopFacts').innerHTML = `<li><b>${PR.fillMl} мл</b>соєвий віск, скляна тара ${PR.containerMl} мл</li><li><b>${sc.length} ароматів</b>або свічка без аромату</li><li><b>2 види ґноту</b>бавовняний або дерев’яний</li>` + (bp ? `<li><b>від ${money(T[T.length - 1].price)}</b>за свічку при більшій кількості</li>` : '');
-  $$('img[data-coll-photo]').forEach((im) => { im.src = (window.COLLECTION_PHOTOS || {})[im.dataset.collPhoto] || ''; });
+  $$('img[data-coll-photo]').forEach((im) => { if (!im.getAttribute('src')) im.src = (window.COLLECTION_PHOTOS || {})[im.dataset.collPhoto] || ''; });
+  applySiteTexts();
 }
-function paintShop(){ $$('canvas[data-paint]').forEach((cv) => { const pr = productById(cv.dataset.paint); if (pr && cv.closest('#shopGrid, #cartBody')) paintProduct(cv, pr); }); }
+function paintShop(){
+  $$('canvas[data-paint]').forEach((cv) => {
+    if (!cv.closest('#shopGrid, #cartBody')) return;
+    cv._dirty = true;
+    if (paintIO && !cv._observed){ paintIO.observe(cv); cv._observed = true; }
+    if (!paintIO || cv._vis || cv.closest('#cartBody')) queuePaint(cv);
+  });
+}
 $('#shopFilter').addEventListener('click', (e) => {
   const b = e.target.closest('[data-cat]'); if (!b) return;
   $$('#shopFilter [data-cat]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
@@ -2345,7 +2372,7 @@ function scentOptions(sel){
 }
 function openProduct(id){
   const pr = productById(id); if (!pr) return; pdProduct = pr;
-  $('#h-product').textContent = pr.title; $('#pdCat').textContent = pr.cats.map((c) => SHOP_CAT[c]).join(' · ');
+  $('#h-product').textContent = pr.title; $('#pdCat').textContent = (pr.cats || []).map((c) => SHOP_CAT[c]).filter(Boolean).join(' · ');
   $('#pdDesc').textContent = pr.desc;
   $('#pdMeta').textContent = `${CONFIG.product.name} · ${CONFIG.product.wax.toLowerCase()} · ${productGlass(pr).name.toLowerCase()} склянка ${CONFIG.product.containerMl} мл`;
   $('#pdMedia').innerHTML = productMedia(pr, 900);
@@ -2398,7 +2425,8 @@ document.addEventListener('click', (e) => { const b = e.target.closest('[data-pr
 
 /* ---------- кошик (зберігається в цьому браузері) ---------- */
 let cart = [];
-try { cart = JSON.parse(localStorage.getItem('rdk-cart') || '[]').filter((i) => productById(i.id) && i.qty > 0); } catch (e){ cart = []; }
+try { cart = JSON.parse(localStorage.getItem('rdk-cart') || '[]'); } catch (e){ cart = []; }
+function pruneCart(){ cart = (Array.isArray(cart) ? cart : []).filter((i) => i && productById(i.id) && !productById(i.id).hidden && i.qty > 0); }
 const cartQty = () => cart.reduce((n, i) => n + i.qty, 0);
 function saveCart(){ try { localStorage.setItem('rdk-cart', JSON.stringify(cart)); } catch (e){} updateCartBadge(); }
 function updateCartBadge(){ const n = cartQty(), c = $('#cartCount'); c.textContent = n; c.hidden = !n; $('#cartBtn').setAttribute('aria-label', `Кошик, товарів: ${n}`); }
@@ -2514,6 +2542,8 @@ function route(){
 window.addEventListener('hashchange', route);
 document.addEventListener('click', (e) => { const a = e.target.closest('a[href^="#"]'); if (a && a.getAttribute('href') === location.hash) { e.preventDefault(); route(); } });
 
+let repaintT = 0;
+function scheduleRepaint(){ clearTimeout(repaintT); repaintT = setTimeout(repaintAll, 60); }
 function repaintAll(){ renderHero(); paintGallery(); paintTemplateChips(); paintShop(); requestRender(); if (selectedEl()) syncProps(); }
 function loadMockupPhotos(){
   const list = [CONFIG.mockup.photo, ...Object.values(CONFIG.mockup.photos || {})].filter(Boolean);
@@ -2522,12 +2552,59 @@ function loadMockupPhotos(){
     const keys = { base: ph.src, shade: ph.shade, dark: ph.dark, hl: ph.highlights, patch: ph.wickPatch };
     Object.entries(keys).forEach(([k, src]) => {
       if (!src) return;
-      const im = new Image(); im.onload = () => repaintAll(); im.onerror = () => { if (k === 'base'){ ph.imgs.base = null; console.warn('Фотомокап не завантажився'); } };
+      const im = new Image(); im.onload = () => scheduleRepaint(); im.onerror = () => { if (k === 'base'){ ph.imgs.base = null; console.warn('Фотомокап не завантажився'); } };
       im.src = src; ph.imgs[k] = im;
     });
   });
 }
+/* ===================== Дані з адмін-панелі (data/site.json) =====================
+   Сайт працює й без файлу: тоді лишаються вбудовані значення. Кожне поле перевіряється, щоб
+   помилка в даних не зламала сторінку. */
+let SITE_DATA = null;
+async function loadSiteData(){
+  if (!CONFIG.dataUrl) return null;
+  try {
+    const r = await fetch(CONFIG.dataUrl, { cache: 'no-cache' });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return await r.json();
+  } catch (e){ console.warn('Не вдалося завантажити дані сайту, використовуються вбудовані', e); return null; }
+}
+function applySiteData(d){
+  if (!d || typeof d !== 'object') return;
+  const okTpl = (id) => TEMPLATES.some((t) => t.id === id);
+  if (Array.isArray(d.products)) PRODUCTS = d.products.filter((x) => x && x.id && x.title && (x.image || okTpl(x.tpl)))
+    .map((x) => Object.assign({ cats: [], desc: '', glass: 'clear' }, x, { tpl: x.image ? undefined : x.tpl }));
+  if (Array.isArray(d.works)) WORKS = d.works.filter((x) => x && x.id && x.title && x.image).map((x) => Object.assign({ cat: 'gift', note: '', glass: 'clear' }, x));
+  const P = CONFIG.pricing, dp = d.pricing;
+  if (dp && typeof dp === 'object'){
+    if (Array.isArray(dp.tiers)){ const t = dp.tiers.map((x) => ({ min: Math.round(+x.min), price: +x.price })).filter((x) => x.min >= 1 && x.price >= 0).sort((a, b) => a.min - b.min); if (t.length){ t[0].min = 1; P.tiers = t; } }
+    if ('quoteFromQty' in dp) P.quoteFromQty = dp.quoteFromQty ? Math.round(+dp.quoteFromQty) || null : null;
+    if ('approved' in dp) P.approved = !!dp.approved;
+    if (typeof dp.note === 'string' && dp.note.trim()) P.note = dp.note.trim();
+  }
+  if (d.scents && Array.isArray(d.scents.groups)){
+    const g = d.scents.groups.filter((x) => x && x.id && x.name && Array.isArray(x.items)).map((x) => Object.assign({}, x, { items: x.items.filter((i) => i && i.id && i.name) })).filter((x) => x.items.length);
+    if (g.length){ CONFIG.scents.groups = g; state.scentGroup = g[0].id; if (state.scentId && !scentById(state.scentId)){ state.scentId = null; state.scentMode = 'none'; } }
+  }
+  if (d.contacts && typeof d.contacts === 'object') ['phone', 'email', 'instagram'].forEach((k) => { if (k in d.contacts) CONFIG.contacts[k] = d.contacts[k] ? String(d.contacts[k]) : null; });
+  if ('showDemoNotice' in d) CONFIG.showDemoNotice = !!d.showDemoNotice;
+  SITE_DATA = d;
+}
+function applySiteTexts(){
+  const d = SITE_DATA; if (!d) return;
+  const txt = (id, v) => { if (typeof v === 'string' && v.trim() && $('#' + id)) $('#' + id).textContent = v.trim(); };
+  const ph = d.photos || {}, img = (id, v) => { if (typeof v === 'string' && v && $('#' + id)) $('#' + id).src = v; };
+  img('shopHeroImg', ph.shopHero); img('b2bHeroImg', ph.b2bHero); img('teaserImg', ph.teaser); img('bizImg', ph.business);
+  const sh = (d.texts || {}).shopHero || {}, bh = (d.texts || {}).b2bHero || {};
+  txt('shopKicker', sh.kicker); txt('h-shop', sh.title); txt('shopLead', sh.lead); txt('shopPhotoTitle', sh.photoTitle); txt('shopPhotoText', sh.photoText);
+  if ('photoProduct' in sh){ const pr = sh.photoProduct && productById(sh.photoProduct); const b = $('#shopPhotoBtn'); b.hidden = !pr || !!pr.hidden; if (pr) b.dataset.product = pr.id; }
+  if (typeof sh.photoAlt === 'string' && sh.photoAlt) $('#shopHeroImg').alt = sh.photoAlt;
+  txt('b2bKicker', bh.kicker); txt('h-hero', bh.title); txt('b2bLead', bh.lead); txt('b2bPhotoTitle', bh.photoTitle); txt('b2bPhotoText', bh.photoText);
+  if ('photoTemplate' in bh){ const b = $('#b2bPhotoBtn'); const ok = bh.photoTemplate && TEMPLATES.some((t) => t.id === bh.photoTemplate); b.hidden = !ok; if (ok) b.dataset.use = bh.photoTemplate; }
+  if (typeof bh.photoAlt === 'string' && bh.photoAlt) $('#b2bHeroImg').alt = bh.photoAlt;
+}
 async function init(){
+  applySiteData(await loadSiteData()); pruneCart();
   staticTexts(); loadMockupPhotos();
   renderTemplateChips(); renderGallery(); renderWorks(); renderShop(); updateCartBadge(); renderHero(); route();
   goStep('color');
