@@ -1852,14 +1852,23 @@ let WORKS = [
   { id: 'nova', cat: 'biz', title: 'NOVA Partners', glass: 'custom', customHex: '#4E4A46', customDesc: 'Димчасте скло, як у прикладі «NOVA Partners»', note: 'Логотип і подяка партнерам', tpl: 'nova', alt: 'Свічка в димчастій склянці з логотипом NOVA Partners і написом «Дякуємо за партнерство» поруч із подарунковою коробкою' },
   { id: 'forma', cat: 'biz', title: 'FORMA', glass: 'clear', note: 'Геометричний орнамент і слоган бренду', tpl: 'forma', alt: 'Свічка з геометричним орнаментом і написом «FORMA. Разом створюємо більше» поруч із брендованою коробкою' }
 ];
-const WORK_CAT = { gift: 'Подарунок', love: 'Кохання', wedding: 'Весілля', biz: 'Для бізнесу' };
+/* Категорії редагуються в адмін-панелі (workCategories у data/site.json). Порядок = порядок фільтрів. */
+let WORK_CATS = [{ id: 'gift', name: 'Подарунки' }, { id: 'love', name: 'Кохання' }, { id: 'wedding', name: 'Весілля' }, { id: 'biz', name: 'Для бізнесу' }];
+const workCatName = (id) => (WORK_CATS.find((c) => c.id === id) || {}).name || '';
+/* Кнопки фільтра: «Усі» + категорії, у яких є хоча б одна видима позиція. */
+function renderFilter(box, cats, used){
+  const list = cats.filter((c) => used.has(c.id));
+  box.innerHTML = `<button type="button" data-cat="all" aria-pressed="true">Усі</button>` + list.map((c) => `<button type="button" data-cat="${esc(c.id)}" aria-pressed="false">${esc(c.name)}</button>`).join('');
+  box.hidden = list.length < 2;
+}
 const workPhoto = (w) => w.image || (w.photo ? ((window.SITE_PHOTOS || {})[w.photo] || document.querySelector(`img[data-photo="${w.photo}"]`)?.src || '') : (window.COLLECTION_PHOTOS || {})[w.id] || '');
 const workGlassText = (w) => w.glass === 'custom' ? 'Колір склянки під замовлення.' : `${colorById(w.glass || 'clear').name} склянка.`;
 function renderWorks(){
+  renderFilter($('#worksFilter'), WORK_CATS, new Set(WORKS.filter((w) => !w.hidden).map((w) => w.cat)));
   $('#works').innerHTML = WORKS.filter((w) => !w.hidden).map((w) => `<figure class="coll" data-work="${w.id}" data-cat="${w.cat}">
       <div class="ph"><img src="${workPhoto(w)}" width="720" height="720" alt="${esc(w.alt)}"></div>
       <figcaption style="display:grid;gap:6px">
-        <span class="tag">${esc(WORK_CAT[w.cat] || '')}</span>
+        <span class="tag">${esc(workCatName(w.cat))}</span>
         <h3>${esc(w.title)}</h3>
         <p class="meta">${esc(String(w.note || '').replace(/\.$/, ''))}. ${workGlassText(w)}</p>
         <div class="row-btns">${w.tpl && TEMPLATES.some((t) => t.id === w.tpl) ? `<button type="button" class="btn btn-ghost btn-sm" data-work-use="${w.id}">Створити на основі цього дизайну</button>` : `<button type="button" class="btn btn-ghost btn-sm" data-batch>Обговорити такий дизайн</button>`}</div>
@@ -2276,7 +2285,8 @@ function fontsReady(){
    PRODUCTS — каталог. photo — ключ фото (SITE_PHOTOS / img[data-photo] / COLLECTION_PHOTOS);
    tpl — квітковий дизайн, який малюється на мокапі склянки (той самий, що в конструкторі).
    Ціна за свічку береться з CONFIG.pricing і залежить від загальної кількості в кошику (CONFIG.shop.tierByCartQty). */
-const SHOP_CAT = { floral: 'Квіткові', gift: 'Подарунки', love: 'Кохання' };
+let SHOP_CATS = [{ id: 'floral', name: 'Квіткові' }, { id: 'gift', name: 'Подарунки' }, { id: 'love', name: 'Кохання' }];
+const catNames = (ids) => SHOP_CATS.filter((c) => (ids || []).includes(c.id)).map((c) => c.name).join(' · ');
 let PRODUCTS = [
   { id: 'gold', photo: 'gold', cats: ['floral'], title: 'Золоті трави', desc: 'Тонкі золоті гілки трав по всьому колу склянки й маленька монограма.', glass: 'clear', alt: 'Свічка із золотими травами по колу склянки поруч із темною подарунковою коробкою' },
   { id: 'kvitny', photo: 'kvitny', cats: ['floral', 'gift'], title: 'Квітни', desc: 'Рум’яні півонії та бордові квіти по колу й напис «Квітни».', glass: 'clear', alt: 'Свічка з півоніями по всьому колу й написом «Квітни»' },
@@ -2327,10 +2337,11 @@ function productMedia(pr, size = 720, cls = ''){
 const basePrice = () => { const P = CONFIG.pricing; return P.enabled && P.tiers.length ? P.tiers[0].price : null; };
 function renderShop(){
   const bp = basePrice(), P = CONFIG.pricing;
+  renderFilter($('#shopFilter'), SHOP_CATS, new Set(shopProducts().flatMap((x) => x.cats || [])));
   $('#shopGrid').innerHTML = shopProducts().map((pr) => `<figure class="coll" data-product-card="${pr.id}" data-cats="${(pr.cats || []).join(' ')}">
       <button type="button" class="ph${pr.tpl ? ' mock' : ''}" data-product="${pr.id}" aria-label="Переглянути свічку «${esc(pr.title)}»">${productMedia(pr)}</button>
       <figcaption style="display:grid;gap:6px">
-        <span class="tag">${(pr.cats || []).map((c) => SHOP_CAT[c]).filter(Boolean).join(' · ')}</span>
+        <span class="tag">${esc(catNames(pr.cats))}</span>
         <h3>${esc(pr.title)}</h3>
         <p class="meta">${esc(pr.desc)} ${esc(productGlass(pr).name)} склянка.</p>
         <p class="price">${bp ? money(bp) : 'Ціна за запитом'}${bp && !P.approved ? ' <span class="hint" style="font-weight:500">орієнтовно</span>' : ''}</p>
@@ -2372,7 +2383,7 @@ function scentOptions(sel){
 }
 function openProduct(id){
   const pr = productById(id); if (!pr) return; pdProduct = pr;
-  $('#h-product').textContent = pr.title; $('#pdCat').textContent = (pr.cats || []).map((c) => SHOP_CAT[c]).filter(Boolean).join(' · ');
+  $('#h-product').textContent = pr.title; $('#pdCat').textContent = catNames(pr.cats);
   $('#pdDesc').textContent = pr.desc;
   $('#pdMeta').textContent = `${CONFIG.product.name} · ${CONFIG.product.wax.toLowerCase()} · ${productGlass(pr).name.toLowerCase()} склянка ${CONFIG.product.containerMl} мл`;
   $('#pdMedia').innerHTML = productMedia(pr, 900);
@@ -2575,6 +2586,9 @@ function applySiteData(d){
   if (Array.isArray(d.products)) PRODUCTS = d.products.filter((x) => x && x.id && x.title && (x.image || okTpl(x.tpl)))
     .map((x) => Object.assign({ cats: [], desc: '', glass: 'clear' }, x, { tpl: x.image ? undefined : x.tpl }));
   if (Array.isArray(d.works)) WORKS = d.works.filter((x) => x && x.id && x.title && x.image).map((x) => Object.assign({ cat: 'gift', note: '', glass: 'clear' }, x));
+  const cats = (list) => Array.isArray(list) ? list.filter((c) => c && c.id && c.name).map((c) => ({ id: String(c.id), name: String(c.name) })) : null;
+  const sc = cats(d.shopCategories); if (sc) SHOP_CATS = sc;
+  const wc = cats(d.workCategories); if (wc && wc.length) WORK_CATS = wc;
   const P = CONFIG.pricing, dp = d.pricing;
   if (dp && typeof dp === 'object'){
     if (Array.isArray(dp.tiers)){ const t = dp.tiers.map((x) => ({ min: Math.round(+x.min), price: +x.price })).filter((x) => x.min >= 1 && x.price >= 0).sort((a, b) => a.min - b.min); if (t.length){ t[0].min = 1; P.tiers = t; } }

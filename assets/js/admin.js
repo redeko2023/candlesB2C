@@ -12,8 +12,11 @@ const IMG_MAX_PX = 1600;        // більша сторона фото післ
 const IMG_MIN_PX = 600;         // менше — попередження про якість
 const IMG_MAX_MB = 20;
 
-const SHOP_CATS = [['floral', 'Квіткові'], ['gift', 'Подарунки'], ['love', 'Кохання']];
-const WORK_CATS = [['gift', 'Подарунок'], ['love', 'Кохання'], ['wedding', 'Весілля'], ['biz', 'Для бізнесу']];
+/* категорії за замовчуванням — якщо в data/site.json їх ще немає */
+const DEF_SHOP_CATS = [{ id: 'floral', name: 'Квіткові' }, { id: 'gift', name: 'Подарунки' }, { id: 'love', name: 'Кохання' }];
+const DEF_WORK_CATS = [{ id: 'gift', name: 'Подарунки' }, { id: 'love', name: 'Кохання' }, { id: 'wedding', name: 'Весілля' }, { id: 'biz', name: 'Для бізнесу' }];
+const shopCats = () => data.shopCategories.map((c) => [c.id, c.name]);
+const workCats = () => data.workCategories.map((c) => [c.id, c.name]);
 const GLASS = [['clear', 'Прозора'], ['black', 'Чорна'], ['white', 'Біла']];
 
 const $ = (s, r = document) => r.querySelector(s);
@@ -97,6 +100,8 @@ async function login(a, remember){
 function normalize(d){
   d.products = Array.isArray(d.products) ? d.products : [];
   d.works = Array.isArray(d.works) ? d.works : [];
+  d.shopCategories = Array.isArray(d.shopCategories) ? d.shopCategories : clone(DEF_SHOP_CATS);
+  d.workCategories = Array.isArray(d.workCategories) ? d.workCategories : clone(DEF_WORK_CATS);
   d.photos = d.photos || {};
   d.pricing = d.pricing || { tiers: [{ min: 1, price: 0 }] };
   d.pricing.tiers = Array.isArray(d.pricing.tiers) ? d.pricing.tiers : [];
@@ -155,6 +160,8 @@ function validateAll(){
   if (t.some((x) => !(x.min >= 1) || !(x.price >= 0))) p.push('У тарифах ціни кількість має бути від 1, а ціна — не від’ємна.');
   if (t.length && t[0].min !== 1) p.push('Перший тариф ціни має починатися з 1 шт.');
   if (!data.scents.groups.some((g) => g.items.length)) p.push('Залиште хоча б один аромат.');
+  if (data.shopCategories.concat(data.workCategories).some((c) => !String(c.name || '').trim())) p.push('У кожної категорії має бути назва (вкладка «Категорії»).');
+  if (!data.workCategories.length) p.push('Залиште хоча б одну категорію прикладів робіт.');
   return p;
 }
 
@@ -170,7 +177,7 @@ function setTab(t){
   $$('.tabs [role=tab]').forEach((b) => { const on = b.id === 'tab-' + t; b.setAttribute('aria-selected', on); b.tabIndex = on ? 0 : -1; });
   $$('.pane').forEach((p) => { p.hidden = p.id !== 'pane-' + t; });
 }
-function renderAll(){ renderProducts(); renderWorks(); renderPhotos(); renderPrices(); renderScents(); renderTexts(); }
+function renderAll(){ renderProducts(); renderCats(); renderWorks(); renderPhotos(); renderPrices(); renderScents(); renderTexts(); }
 
 /* ---------- зображення ---------- */
 const imgSrc = (path) => !path ? '' : uploads.has(path) ? uploads.get(path).preview : path;
@@ -243,7 +250,7 @@ function renderProducts(){
     <ul class="list">${L.map((p, i) => `<li class="row${p.hidden ? ' is-hidden' : ''}">
       <div class="thumb">${p.image ? thumb(p.image) : esc('Квітковий дизайн')}</div>
       <div><b>${esc(p.title)}${p.hidden ? '<span class="badge">приховано</span>' : ''}${p.image && uploads.has(p.image) ? '<span class="badge new">нове фото</span>' : ''}</b>
-        <small>${esc((p.cats || []).map((c) => (SHOP_CATS.find((x) => x[0] === c) || [, c])[1]).join(' · ') || 'Без категорії')}${p.image ? '' : ' · ' + esc(tplName(p.tpl))}</small></div>
+        <small>${esc(data.shopCategories.filter((c) => (p.cats || []).includes(c.id)).map((c) => c.name).join(' · ') || 'Без категорії')}${p.image ? '' : ' · ' + esc(tplName(p.tpl))}</small></div>
       <div class="row-actions">
         <button type="button" class="icon-btn" data-act="p-up" data-i="${i}" aria-label="Вище: ${esc(p.title)}"${i ? '' : ' disabled'}>↑</button>
         <button type="button" class="icon-btn" data-act="p-down" data-i="${i}" aria-label="Нижче: ${esc(p.title)}"${i < L.length - 1 ? '' : ' disabled'}>↓</button>
@@ -257,7 +264,7 @@ function productForm(p){
   const isPhoto = !!p.image || !p.tpl;
   return `<div class="field"><label for="e-title">Назва *</label><input id="e-title" value="${esc(p.title || '')}" maxlength="80"></div>
     <div class="field"><label for="e-desc">Опис</label><textarea id="e-desc" maxlength="300">${esc(p.desc || '')}</textarea><p class="hint">1–2 речення: що зображено на свічці.</p></div>
-    <div class="field"><span class="lbl">Категорії</span><div class="checks">${SHOP_CATS.map(([v, l]) => `<label class="check"><input type="checkbox" name="e-cat" value="${v}"${(p.cats || []).includes(v) ? ' checked' : ''}> ${l}</label>`).join('')}</div></div>
+    <div class="field"><span class="lbl">Категорії</span><p class="hint">Список категорій змінюється у вкладці «Категорії».</p><div class="checks">${shopCats().map(([v, l]) => `<label class="check"><input type="checkbox" name="e-cat" value="${v}"${(p.cats || []).includes(v) ? ' checked' : ''}> ${l}</label>`).join('')}</div></div>
     <div class="field"><span class="lbl">Зображення</span><div class="checks">
       <label class="check"><input type="radio" name="e-kind" value="photo"${isPhoto ? ' checked' : ''}> Фото</label>
       ${tpls.floral.length ? `<label class="check"><input type="radio" name="e-kind" value="tpl"${isPhoto ? '' : ' checked'}> Квітковий дизайн на склянці</label>` : ''}</div></div>
@@ -286,6 +293,28 @@ function editProduct(i){
   });
 }
 
+/* ---------- категорії ---------- */
+function catList(key, title, hint, count){
+  const L = data[key];
+  return `<div class="section"><div class="pane-head"><div><h3>${esc(title)}</h3><p class="hint">${esc(hint)}</p></div>
+      <button type="button" class="btn btn-ghost btn-sm" data-act="c-add" data-list="${key}">+ Додати категорію</button></div>
+    <ul class="list">${L.map((c, i) => `<li class="cat-row">
+      <input value="${esc(c.name)}" data-cat-list="${key}" data-i="${i}" maxlength="40" placeholder="Назва категорії" aria-label="Назва категорії ${i + 1}">
+      <small>${count(c.id)}</small>
+      <div class="row-actions">
+        <button type="button" class="icon-btn" data-act="c-up" data-list="${key}" data-i="${i}" aria-label="Вище: ${esc(c.name)}"${i ? '' : ' disabled'}>↑</button>
+        <button type="button" class="icon-btn" data-act="c-down" data-list="${key}" data-i="${i}" aria-label="Нижче: ${esc(c.name)}"${i < L.length - 1 ? '' : ' disabled'}>↓</button>
+        <button type="button" class="btn btn-danger btn-sm" data-act="c-del" data-list="${key}" data-i="${i}">Видалити</button>
+      </div></li>`).join('')}</ul></div>`;
+}
+function renderCats(){
+  const pc = (id) => { const n = data.products.filter((x) => (x.cats || []).includes(id)).length; return n ? `${n} товар(ів)` : 'порожня — не показується'; };
+  const wc = (id) => { const n = data.works.filter((x) => x.cat === id).length; return n ? `${n} приклад(ів)` : 'порожня — не показується'; };
+  $('#pane-cats').innerHTML = `<div class="pane-head"><div><h2>Категорії</h2><p class="muted">Категорії — це фільтри над каталогом і прикладами робіт. Порядок тут — порядок кнопок на сайті. Порожні категорії на сайті не показуються. Щоб віднести товар до категорії, відредагуйте товар.</p></div></div>
+    ${catList('shopCategories', 'Категорії магазину', 'Товар може бути в кількох категоріях одночасно.', pc)}
+    ${catList('workCategories', 'Категорії прикладів робіт (B2B)', 'Кожен приклад належить до однієї категорії.', wc)}`;
+}
+
 /* ---------- приклади робіт ---------- */
 function renderWorks(){
   const L = data.works;
@@ -293,7 +322,7 @@ function renderWorks(){
     <button type="button" class="btn btn-cta" data-act="w-add">+ Додати приклад</button></div>
     <ul class="list">${L.map((w, i) => `<li class="row${w.hidden ? ' is-hidden' : ''}">
       <div class="thumb">${thumb(w.image)}</div>
-      <div><b>${esc(w.title)}${w.hidden ? '<span class="badge">приховано</span>' : ''}${uploads.has(w.image) ? '<span class="badge new">нове фото</span>' : ''}</b><small>${esc((WORK_CATS.find((x) => x[0] === w.cat) || [, '—'])[1])}${w.tpl ? ' · шаблон «' + esc(tplName(w.tpl)) + '»' : ''}</small></div>
+      <div><b>${esc(w.title)}${w.hidden ? '<span class="badge">приховано</span>' : ''}${uploads.has(w.image) ? '<span class="badge new">нове фото</span>' : ''}</b><small>${esc((data.workCategories.find((c) => c.id === w.cat) || { name: 'Без категорії' }).name)}${w.tpl ? ' · шаблон «' + esc(tplName(w.tpl)) + '»' : ''}</small></div>
       <div class="row-actions">
         <button type="button" class="icon-btn" data-act="w-up" data-i="${i}" aria-label="Вище: ${esc(w.title)}"${i ? '' : ' disabled'}>↑</button>
         <button type="button" class="icon-btn" data-act="w-down" data-i="${i}" aria-label="Нижче: ${esc(w.title)}"${i < L.length - 1 ? '' : ' disabled'}>↓</button>
@@ -303,12 +332,12 @@ function renderWorks(){
       </div></li>`).join('')}</ul>`;
 }
 function editWork(i){
-  const isNew = i < 0, w = isNew ? { cat: 'gift', glass: 'clear' } : data.works[i];
+  const isNew = i < 0, w = isNew ? { cat: (data.workCategories[0] || {}).id, glass: 'clear' } : data.works[i];
   const glassOpts = GLASS.concat([['custom', 'Інший колір (під замовлення)']]);
   openEditor(isNew ? 'Новий приклад роботи' : `Редагувати: ${w.title}`, `
     <div class="field"><label for="e-title">Назва *</label><input id="e-title" value="${esc(w.title || '')}" maxlength="80"></div>
     <div class="field"><label for="e-note">Короткий опис</label><input id="e-note" value="${esc(w.note || '')}" maxlength="160" placeholder="Наприклад: Весільний вінок, імена й дата"></div>
-    <div class="grid2"><div class="field"><label for="e-cat">Категорія</label><select id="e-cat">${opts(WORK_CATS, w.cat)}</select></div>
+    <div class="grid2"><div class="field"><label for="e-cat">Категорія</label><select id="e-cat">${opts(workCats(), w.cat)}</select></div>
       <div class="field"><label for="e-glass">Склянка</label><select id="e-glass">${opts(glassOpts, w.glass || 'clear')}</select></div></div>
     <div class="field"><label for="e-custom">Опис кольору склянки <span class="hint">(для «Інший колір»)</span></label><input id="e-custom" value="${esc(w.customDesc || '')}" maxlength="120"></div>
     ${uploaderHtml('work', w.image, 'Фото прикладу')}
@@ -338,6 +367,22 @@ document.addEventListener('click', (e) => {
     case 'p-down': case 'w-down': return move(1);
     case 'p-hide': case 'w-hide': list[i].hidden = !list[i].hidden; if (!list[i].hidden) delete list[i].hidden; return changed();
     case 'p-del': case 'w-del': if (confirm(`Видалити «${list[i].title}»? Після публікації позиція зникне з сайту.`)){ list.splice(i, 1); changed(); } return;
+    case 'c-add': { const key = b.dataset.list, L = data[key]; L.push({ id: uniqId(L, 'kategoriia'), name: '' }); changed(); setTimeout(() => { const ins = $$(`[data-cat-list="${key}"]`); ins[ins.length - 1]?.focus(); }, 0); return; }
+    case 'c-up': case 'c-down': { const L = data[b.dataset.list], j = i + (act === 'c-up' ? -1 : 1); [L[i], L[j]] = [L[j], L[i]]; return changed(); }
+    case 'c-del': {
+      const key = b.dataset.list, L = data[key], c = L[i];
+      if (key === 'shopCategories'){
+        const n = data.products.filter((x) => (x.cats || []).includes(c.id)).length;
+        if (!confirm(`Видалити категорію «${c.name || 'без назви'}»?` + (n ? ` Її приберемо з ${n} товар(ів); самі товари лишаться в каталозі.` : ''))) return;
+        data.products.forEach((x) => { if (x.cats) x.cats = x.cats.filter((id) => id !== c.id); });
+      } else {
+        const n = data.works.filter((x) => x.cat === c.id).length;
+        if (n){ alert(`Категорію «${c.name}» мають ${n} приклад(и) робіт. Спершу змініть у них категорію, потім видаліть цю.`); return; }
+        if (L.length < 2){ alert('Має лишитися хоча б одна категорія прикладів.'); return; }
+        if (!confirm(`Видалити категорію «${c.name || 'без назви'}»?`)) return;
+      }
+      L.splice(i, 1); return changed();
+    }
     case 'tier-add': data.pricing.tiers.push({ min: (data.pricing.tiers.slice(-1)[0] || { min: 0 }).min + 1, price: 0 }); return changed();
     case 'tier-del': data.pricing.tiers.splice(i, 1); return changed();
     case 'g-add': data.scents.groups.push({ id: uniqId(data.scents.groups, 'group'), name: 'Нова група', items: [] }); return changed();
@@ -389,6 +434,7 @@ document.addEventListener('input', (e) => {
     else { const it = g.items[+t.dataset.j]; if (t.dataset.f === 'available') it.available = t.checked; else it[t.dataset.f] = t.value; }
     updateDirty(); return;
   }
+  if (t.dataset.catList){ data[t.dataset.catList][+t.dataset.i].name = t.value; updateDirty(); return; }
   if (t.dataset.text){ const [sec, k] = t.dataset.text.split('.'); if (sec === 'contacts') data.contacts[k] = t.value.trim() || null; else data.texts[sec][k] = t.value; updateDirty(); }
 });
 document.addEventListener('change', (e) => {

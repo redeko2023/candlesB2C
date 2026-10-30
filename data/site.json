@@ -1,5 +1,37 @@
 {
   "version": 1,
+  "shopCategories": [
+    {
+      "id": "floral",
+      "name": "Квіткові"
+    },
+    {
+      "id": "gift",
+      "name": "Подарунки"
+    },
+    {
+      "id": "love",
+      "name": "Кохання"
+    }
+  ],
+  "workCategories": [
+    {
+      "id": "gift",
+      "name": "Подарунки"
+    },
+    {
+      "id": "love",
+      "name": "Кохання"
+    },
+    {
+      "id": "wedding",
+      "name": "Весілля"
+    },
+    {
+      "id": "biz",
+      "name": "Для бізнесу"
+    }
+  ],
   "products": [
     {
       "id": "gold",
